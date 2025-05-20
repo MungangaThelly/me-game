@@ -5,6 +5,7 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   build: {
-    assetsInlineLimit: 4096 // Sounds under 4KB will be inlined
+    outDir: 'dist', // ✅ Explicitly set output folder
+    assetsInlineLimit: 4096
   }
 })
