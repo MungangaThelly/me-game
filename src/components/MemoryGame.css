@@ -1,207 +1,129 @@
-/* MemoryGame.css - Complete Stylesheet */
-
-/* Base Styles */
 .memory-game {
+  text-align: center;
   padding: 20px;
-  max-width: 1200px;
+  max-width: 800px;
   margin: 0 auto;
+  font-family: Arial, sans-serif;
 }
 
-/* Theme Selector */
-.theme-selector {
-  margin: 20px 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  animation: fadeIn 0.5s ease-out;
-}
-
-.theme-buttons {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-  width: 100%;
-  max-width: 320px;
-  margin-top: 10px;
-}
-
-.theme-selector h3 {
-  color: #2c3e50;
-  margin-bottom: 8px;
-  font-size: 1.2rem;
-}
-
-.theme-selector button {
-  padding: 10px 15px;
-  border: 2px solid #e0e0e0;
-  background: #ffffff;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 0.95rem;
-  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-}
-
-.theme-selector button.active {
-  background: #4CAF50;
-  color: white;
-  border-color: #3d8b40;
-  font-weight: 600;
-}
-
-/* Card Grid */
 .card-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-  gap: 15px;
-  margin: 25px 0;
+  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+  gap: 10px;
+  margin: 20px auto;
+  perspective: 1000px;
 }
 
 .card {
   aspect-ratio: 1/1;
-  perspective: 1000px;
+  background: transparent;
+  cursor: pointer;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.5s;
 }
 
 .card-inner {
   position: relative;
   width: 100%;
   height: 100%;
+  text-align: center;
   transition: transform 0.6s;
   transform-style: preserve-3d;
 }
 
 .card.flipped .card-inner {
-  transform: rotateY(180deg);
+  transform: rotateY(-180deg);
 }
 
 .card-front, .card-back {
   position: absolute;
   width: 100%;
   height: 100%;
-  backface-visibility: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 10px;
-  box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+  backface-visibility: hidden;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  font-size: 2rem;
 }
 
 .card-front {
-  background: #4CAF50;
-  color: white;
-  font-size: 1.8rem;
+  background: #f0f0f0;
+  color: transparent;
 }
 
 .card-back {
   background: white;
-  font-size: 2.8rem;
   transform: rotateY(180deg);
 }
 
 .card.matched .card-back {
-  animation: pulse 0.5s ease;
+  background: #4caf50;
+  color: white;
+  animation: matchEffect 0.6s ease-in-out;
 }
 
-/* Congratulations Screen */
+@keyframes matchEffect {
+  0% { transform: rotateY(180deg) scale(1); }
+  50% { 
+    transform: rotateY(180deg) scale(1.1);
+    box-shadow: 0 0 20px rgba(76, 175, 80, 0.7);
+  }
+  100% { transform: rotateY(180deg) scale(1); }
+}
+
+/* Responsive design */
+@media (max-width: 600px) {
+  .card-grid {
+    grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+  }
+  .card-front, .card-back {
+    font-size: 1.5rem;
+  }
+}
+
+/* Theme and button styles */
+.theme-buttons, .difficulty-buttons, .language-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin: 15px 0;
+  flex-wrap: wrap;
+}
+
+button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  background: #4caf50;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+button:hover {
+  background: #45a049;
+  transform: translateY(-2px);
+}
+
+button.active {
+  background: #388e3c;
+  box-shadow: 0 0 0 2px white, 0 0 0 4px #4caf50;
+}
+
 .congratulations-screen {
-  text-align: center;
-  padding: 2.5rem;
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 12px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  background: rgba(255,255,255,0.9);
+  padding: 20px;
+  border-radius: 10px;
   max-width: 500px;
-  margin: 2rem auto;
-  animation: slideUp 0.4s ease-out;
-}
-
-.congratulations-screen h2 {
-  color: #2c3e50;
-  margin-bottom: 1.5rem;
+  margin: 20px auto;
 }
 
 .game-over-actions {
   display: flex;
   justify-content: center;
-  gap: 1.5rem;
-  margin-top: 2.5rem;
-}
-
-.home-button, .game-over-actions button {
-  padding: 0.8rem 1.8rem;
-  border: none;
-  border-radius: 8px;
-  font-size: 1rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.home-button {
-  background: #f0f0f0;
-  color: #333;
-}
-
-.home-button:hover {
-  background: #e0e0e0;
-  transform: translateY(-2px);
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-}
-
-/* Animations */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes pulse {
-  0% { transform: rotateY(180deg) scale(1); }
-  50% { transform: rotateY(180deg) scale(1.1); }
-  100% { transform: rotateY(180deg) scale(1); }
-}
-
-@keyframes slideUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-  .card-grid {
-    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-    gap: 12px;
-  }
-  
-  .card-back {
-    font-size: 2.2rem;
-  }
-}
-
-@media (max-width: 600px) {
-  .game-over-actions {
-    flex-direction: column;
-    gap: 1rem;
-  }
-  
-  .home-button, .game-over-actions button {
-    width: 100%;
-  }
-  
-  .congratulations-screen {
-    padding: 1.5rem;
-    margin: 1rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .theme-buttons {
-    grid-template-columns: 1fr;
-    max-width: 250px;
-  }
-  
-  .card-grid {
-    grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
-  }
-  
-  .card-back {
-    font-size: 2rem;
-  }
+  gap: 15px;
+  margin-top: 20px;
 }

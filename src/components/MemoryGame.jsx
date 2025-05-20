@@ -2,13 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import "./MemoryGame.css";
-import matchSound from "/sounds/match.mp3";
-import flipSound from "/sounds/flip.mp3";
 import "../i18n";
-
-const playSound = (sound) => {
-  new Audio(sound).play();
-};
 
 // Expanded themes with animals and sports
 const themes = {
@@ -81,7 +75,6 @@ const MemoryGame = () => {
     );
 
     setCards(updatedCards);
-    playSound(flipSound);
     setFlippedCards([...flippedCards, id]);
 
     if (flippedCards.length === 1) {
@@ -95,7 +88,6 @@ const MemoryGame = () => {
 
     if (firstCard.value === secondCard.value) {
       setTimeout(() => {
-        playSound(matchSound);
         setScore((prev) => prev + 10);
         setCards(updatedCards.map((card) =>
           card.value === firstCard.value ? { ...card, isMatched: true } : card
