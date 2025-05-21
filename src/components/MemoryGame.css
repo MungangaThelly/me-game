@@ -258,3 +258,17 @@ theme-name {
   color: #777;
   text-align: center;
 }
+
+[data-theme="colors"] .card-back {
+  background-color: #FFF9C4; /* Light yellow background */
+  font-size: 2.2rem;
+}
+
+[data-theme="shapes"] .card-back {
+  background-color: #E8EAF6; /* Light purple background */
+  padding: 5px;
+}
+
+[data-theme="colors"] .card-back span {
+  filter: saturate(1.5);
+}
