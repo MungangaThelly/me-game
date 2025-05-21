@@ -15,7 +15,20 @@
   "timeTaken": "Tid Använd",
   "highScore": "Högsta Poäng",
   "playAgain": "Spela Igen",
+  "blommor": "Blommor",
+  "fruits": "Frukter",
+  "grönsaker": "Grönsaker",
+  "animals": "Djur",
+  "marine": "Marina",
+  "birds": "Fåglar",
+  "sports": "Sport",
+  "vehicles": "Fordon",
+  "weather": "Väder",
+  "music": "Musik",
+  "professions": "Yrken",
+  "holidays": "Högtider",
+  "zodiac": "Zodiak",
   "colors": "Färger",
   "shapes": "Former",
-  "rymd": "Rymd"
+  "space": "Rymd"
 }
