@@ -1,0 +1,18 @@
+{
+  "gameTitle": "Memory Spelet",
+  "reset": "Återställ spelet",
+  "flipCard": "Vänd på ett kort",
+  "matched": "Matchad!",
+  "timer": "Tid",
+  "score": "Poäng",
+  "easy": "Lätt",
+  "medium": "Medium",
+  "hard": "Svår",
+  "swedish": "Svenska",
+  "english": "Engelska",
+  "congratulations": "Grattis!",
+  "finalScore": "Slutpoäng",
+  "timeTaken": "Tid Använd",
+  "highScore": "Högsta Poäng",
+  "playAgain": "Spela Igen"
+}
