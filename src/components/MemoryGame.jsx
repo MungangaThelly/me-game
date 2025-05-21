@@ -269,7 +269,7 @@ const MemoryGame = () => {
                 ))}
 
                   {/* Second Row */}
-                {Object.keys(themes).slice(6).map(themeKey => (
+                {Object.keys(themes).slice(0, 8).map(themeKey => (
                   <button
                     key={themeKey}
                     className={`theme-btn ${theme === themeKey ? 'active' : ''}`}
