@@ -20,7 +20,8 @@ const themes = {
   holidays: ['🎄', '🎃', '🎆', '🎇', '🪔', '🎉', '🎊', '🛶', '🎁', '🧧'],
   zodiac: ['♈', '♉', '♊', '♋', '♌', '♍', '♎', '♏', '♐', '♑'],
    colors: ['🔴', '🟠', '🟡', '🟢', '🔵', '🟣', '🟤', '⚫', '⚪', '🟥', '🟧', '🟨', '🟩', '🟦', '🟪', '🟫'],
-  shapes: ['⬛', '⬜', '◼️', '◻️', '🔶', '🔷', '🔸', '🔹', '🔺', '🔻', '💠', '🔘', '🔳', '🔲', '🟨', '🟪']
+  shapes: ['⬛', '⬜', '◼️', '◻️', '🔶', '🔷', '🔸', '🔹', '🔺', '🔻', '💠', '🔘', '🔳', '🔲', '🟨', '🟪'],
+  space: ['🚀', '🛸', '👽', '🌎', '🌕', '✨']
 };
 
 // Theme metadata
@@ -39,7 +40,8 @@ const themeMeta = {
   holidays: { color: '#F44336', icon: '🎄' },
   zodiac: { color: '#FFC107', icon: '♈' },
   colors: { color: '#FF1744', icon: '🎨' },
-  shapes: { color: '#7C4DFF', icon: '🔶' }
+  shapes: { color: '#7C4DFF', icon: '🔶' },
+  space: { color: '#673AB7', icon: '🚀' }
 };
 
 // Multiplayer modes
