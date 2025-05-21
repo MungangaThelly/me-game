@@ -210,7 +210,7 @@ const MemoryGame = () => {
 
   return (
     <div className="memory-game" data-theme={theme}>
-      <h1>{t('memoryGame')}</h1>
+      <h1>{t('Me-GaMe')}</h1>
       
       {gameOver ? (
         <div className="congratulations-screen">
