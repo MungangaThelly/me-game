@@ -256,7 +256,7 @@ const MemoryGame = () => {
             <div className="theme-selector">
               <h3>{t('selectTheme')}</h3>
               <div className="theme-grid">
-                {Object.keys(themes).slice(0, 8).map(themeKey => (
+                {Object.keys(themes).slice(0, 6).map(themeKey => (
                   <button
                     key={themeKey}
                     className={`theme-btn ${theme === themeKey ? 'active' : ''}`}
@@ -269,7 +269,7 @@ const MemoryGame = () => {
                 ))}
 
                   {/* Second Row */}
-                {Object.keys(themes).slice(0, 8).map(themeKey => (
+                {Object.keys(themes).slice(6).map(themeKey => (
                   <button
                     key={themeKey}
                     className={`theme-btn ${theme === themeKey ? 'active' : ''}`}
