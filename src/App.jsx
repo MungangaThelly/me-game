@@ -6,12 +6,18 @@ import MemoryGame from './components/MemoryGame';
 
 function App() {
   return (
+    <>
     <Router>
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/memory-game" element={<MemoryGame />} />
       </Routes>
     </Router>
+
+    <footer className="game-footer">
+        © 2025 Virtal AB. All rights reserved.
+      </footer>
+  </>
   );
 }
 

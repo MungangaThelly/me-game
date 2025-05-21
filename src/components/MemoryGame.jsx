@@ -4,12 +4,22 @@ import { useNavigate } from "react-router-dom";
 import "./MemoryGame.css";
 import "../i18n";
 
-// Expanded themes with animals and sports
 const themes = {
   fruits: ['🍎', '🍊', '🍋', '🍉', '🍇', '🍓', '🍑', '🥭', '🍍', '🥝'],
   flowers: ['🌹', '🌻', '🌼', '🌸', '🌺', '🌷', '💐', '🏵️', '🥀', '🪷'],
   animals: ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼', '🐨', '🐯'],
-  sports: ['⚽', '🏀', '🏈', '⚾', '🎾', '🏐', '🏉', '🎱', '🏓', '🏸']
+  sports: ['⚽', '🏀', '🏈', '⚾', '🎾', '🏐', '🏉', '🎱', '🏓', '🏸'],
+  fishes: ['🐠', '🐟', '🐡', '🦈', '🐋', '🐬', '🐳', '🦀', '🐙', '🦑'],
+  birds: ['🐦', '🐤', '🐧', '🦅', '🦉', '🦜', '🦚', '🦩', '🦢', '🐥']
+};
+
+const themeColors = {
+  fruits: '#FF5252',
+  flowers: '#FF4081',
+  animals: '#FF9800',
+  sports: '#4CAF50',
+  fishes: '#00BCD4',
+  birds: '#9C27B0'
 };
 
 const shuffleCards = (difficulty, theme) => {
@@ -127,8 +137,24 @@ const MemoryGame = () => {
     }
   }, [cards, score, gameOver, highScore, gameStarted]);
 
+  const renderThemeButton = (themeKey) => (
+    <button
+      key={themeKey}
+      className={`theme-btn ${theme === themeKey ? 'active' : ''}`}
+      onClick={() => setTheme(themeKey)}
+      style={{ 
+        backgroundColor: themeColors[themeKey],
+        borderColor: theme === themeKey ? '#fff' : 'transparent'
+      }}
+      aria-label={t(themeKey)}
+    >
+      <span className="theme-icon">{themes[themeKey][0]}</span>
+      <span className="theme-name">{t(themeKey)}</span>
+    </button>
+  );
+
   return (
-    <div className="memory-game">
+    <div className="memory-game" data-theme={theme}>
       <h1>{t('ME-GAME')}</h1>
       
       {gameOver ? (
@@ -152,53 +178,57 @@ const MemoryGame = () => {
           <div className="game-stats">
             <p>{t('timer')}: {timer}s</p>
             <p>{t('score')}: {score}</p>
+            <p>{t('highScore')}: {highScore}</p>
           </div>
 
           <div className="theme-selector">
             <h3>{t('selectTheme')}</h3>
-            <div className="theme-buttons">
-              <button 
-                className={theme === 'fruits' ? 'active' : ''}
-                onClick={() => setTheme('fruits')}
-              >
-                {t('fruits')}
-              </button>
-              <button 
-                className={theme === 'flowers' ? 'active' : ''}
-                onClick={() => setTheme('flowers')}
-              >
-                {t('flowers')}
-              </button>
-              <button 
-                className={theme === 'animals' ? 'active' : ''}
-                onClick={() => setTheme('animals')}
-              >
-                {t('animals')}
-              </button>
-              <button 
-                className={theme === 'sports' ? 'active' : ''}
-                onClick={() => setTheme('sports')}
-              >
-                {t('sports')}
-              </button>
+            <div className="theme-grid">
+              {Object.keys(themes).map(renderThemeButton)}
             </div>
           </div>
 
           <div className="difficulty-buttons">
-            <button onClick={() => changeDifficulty(1)}>{t('easy')}</button>
-            <button onClick={() => changeDifficulty(2)}>{t('medium')}</button>
-            <button onClick={() => changeDifficulty(3)}>{t('hard')}</button>
+            <button 
+              onClick={() => changeDifficulty(1)}
+              className={difficulty === 1 ? 'active' : ''}
+            >
+              {t('easy')}
+            </button>
+            <button 
+              onClick={() => changeDifficulty(2)}
+              className={difficulty === 2 ? 'active' : ''}
+            >
+              {t('medium')}
+            </button>
+            <button 
+              onClick={() => changeDifficulty(3)}
+              className={difficulty === 3 ? 'active' : ''}
+            >
+              {t('hard')}
+            </button>
           </div>
           
-          <button onClick={resetGame} className="reset-button" aria-label={t('reset')}>
+          <button 
+            onClick={resetGame} 
+            className="reset-button" 
+            aria-label={t('reset')}
+            style={{ backgroundColor: themeColors[theme] }}
+          >
             {t('reset-play')}
           </button>
           
           <div className="language-buttons">
-            <button onClick={() => i18n.changeLanguage("sv")} aria-label={t('switchToSwedish')}>
+            <button 
+              onClick={() => i18n.changeLanguage("sv")} 
+              aria-label={t('switchToSwedish')}
+            >
               🇸🇪 {t('swedish')}
             </button>
-            <button onClick={() => i18n.changeLanguage("en")} aria-label={t('switchToEnglish')}>
+            <button 
+              onClick={() => i18n.changeLanguage("en")} 
+              aria-label={t('switchToEnglish')}
+            >
               🇬🇧 {t('english')}
             </button>
           </div>
