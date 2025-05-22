@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import "./MemoryGame.css";
 import "../i18n";
 
-// Expanded themes with 12 categories
+// Expanded themes with 16 categories
 const themes = {
   flowers: ['🌹', '🌻', '🌼', '🌸', '🌺', '🌷', '💐', '🏵️', '🥀', '🪷'],
   fruits: ['🍎', '🍊', '🍋', '🍉', '🍇', '🍓', '🍑', '🥭', '🍍', '🥝'],
@@ -19,9 +19,9 @@ const themes = {
   professions: ['👨‍⚕️', '👩‍🍳', '👨‍🔬', '👩‍🎨', '👨‍🚒', '👩‍✈️', '👨‍🏫', '👩‍💻', '👨‍🔧', '👩‍🚀'],
   holidays: ['🎄', '🎃', '🎆', '🎇', '🪔', '🎉', '🎊', '🛶', '🎁', '🧧'],
   zodiac: ['♈', '♉', '♊', '♋', '♌', '♍', '♎', '♏', '♐', '♑'],
-   colors: ['🔴', '🟠', '🟡', '🟢', '🔵', '🟣', '🟤', '⚫', '⚪', '🟥', '🟧', '🟨', '🟩', '🟦', '🟪', '🟫'],
-  shapes: ['⬛', '⬜', '◼️', '◻️', '🔶', '🔷', '🔸', '🔹', '🔺', '🔻', '💠', '🔘', '🔳', '🔲', '🟨', '🟪'],
-  space: ['🚀', '🛸', '👽', '🌎', '🌕', '✨']
+  colors: ['🔴', '🟠', '🟡', '🟢', '🔵', '🟣', '🟤', '⚫', '⚪', '🟥'],
+  shapes: ['⬛', '⬜', '◼️', '◻️', '🔶', '🔷', '🔸', '🔹', '🔺', '🔻'],
+  space: ['🚀', '🛸', '👽', '🌎', '🌕', '✨', '⭐', '🌟', '💫', '☄️']
 };
 
 // Theme metadata
@@ -82,8 +82,13 @@ const MemoryGame = () => {
   const [multiplayerMode, setMultiplayerMode] = useState(multiplayerModes.solo);
   const [players, setPlayers] = useState([{ id: 1, name: 'Player 1', score: 0, active: true }]);
   const [currentPlayer, setCurrentPlayer] = useState(0);
+  const [setupStep, setSetupStep] = useState(0);
+  const [autoSetup, setAutoSetup] = useState(false);
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
+  
+  const themeGridRef = useRef(null);
+  const controlsRef = useRef(null);
 
   useEffect(() => {
     setCards(shuffleCards(difficulty, theme));
@@ -99,6 +104,75 @@ const MemoryGame = () => {
     return () => clearInterval(interval);
   }, [gameStarted, cards]);
 
+  useEffect(() => {
+    if (autoSetup) {
+      const setupSteps = [
+        // Show all themes
+        () => {
+          const themeKeys = Object.keys(themes);
+          let currentThemeIndex = 0;
+          
+          const themeInterval = setInterval(() => {
+            setTheme(themeKeys[currentThemeIndex]);
+            currentThemeIndex++;
+            
+            if (currentThemeIndex >= themeKeys.length) {
+              clearInterval(themeInterval);
+              setSetupStep(1);
+            }
+          }, 500);
+        },
+        
+        // Show theme preview
+        () => {
+          setShowThemeModal(true);
+          setTimeout(() => {
+            setShowThemeModal(false);
+            setSetupStep(2);
+          }, 2000);
+        },
+        
+        // Cycle through difficulties
+        () => {
+          const difficulties = [1, 2, 3];
+          let currentDiffIndex = 0;
+          
+          const diffInterval = setInterval(() => {
+            setDifficulty(difficulties[currentDiffIndex]);
+            currentDiffIndex++;
+            
+            if (currentDiffIndex >= difficulties.length) {
+              clearInterval(diffInterval);
+              setSetupStep(3);
+            }
+          }, 1000);
+        },
+        
+        // Cycle through languages
+        () => {
+          const languages = ['en', 'sv'];
+          let currentLangIndex = 0;
+          
+          const langInterval = setInterval(() => {
+            i18n.changeLanguage(languages[currentLangIndex]);
+            currentLangIndex++;
+            
+            if (currentLangIndex >= languages.length) {
+              clearInterval(langInterval);
+              setSetupStep(4);
+              setAutoSetup(false);
+              startGame();
+            }
+          }, 1000);
+        }
+      ];
+      
+      if (setupStep < setupSteps.length) {
+        setupSteps[setupStep]();
+      }
+    }
+  }, [autoSetup, setupStep, i18n]);
+
   const resetGame = () => {
     setCards(shuffleCards(difficulty, theme));
     setFlippedCards([]);
@@ -107,6 +181,17 @@ const MemoryGame = () => {
     setTimer(0);
     setGameOver(false);
     setGameStarted(true);
+  };
+
+  const startAutoSetup = () => {
+    setSetupStep(0);
+    setAutoSetup(true);
+    setGameStarted(false);
+  };
+
+  const startGame = () => {
+    resetGame();
+    setAutoSetup(false);
   };
 
   const handleCardClick = (id) => {
@@ -240,7 +325,7 @@ const MemoryGame = () => {
         </div>
       ) : (
         <>
-          <div className="game-controls">
+          <div className="game-controls" ref={controlsRef}>
             <div className="mode-selector">
               {Object.values(multiplayerModes).map(mode => (
                 <button
@@ -255,21 +340,8 @@ const MemoryGame = () => {
 
             <div className="theme-selector">
               <h3>{t('selectTheme')}</h3>
-              <div className="theme-grid">
-                {Object.keys(themes).slice(0, 6).map(themeKey => (
-                  <button
-                    key={themeKey}
-                    className={`theme-btn ${theme === themeKey ? 'active' : ''}`}
-                    onClick={() => setTheme(themeKey)}
-                    style={{ backgroundColor: themeMeta[themeKey].color }}
-                  >
-                    <span className="theme-icon">{themeMeta[themeKey].icon}</span>
-                    <span className="theme-name">{t(themeKey)}</span>
-                  </button>
-                ))}
-
-                  {/* Second Row */}
-                {Object.keys(themes).slice(6).map(themeKey => (
+              <div className="theme-grid" ref={themeGridRef}>
+                {Object.keys(themes).map(themeKey => (
                   <button
                     key={themeKey}
                     className={`theme-btn ${theme === themeKey ? 'active' : ''}`}
@@ -310,6 +382,14 @@ const MemoryGame = () => {
                 {t('hard')}
               </button>
             </div>
+
+            <button 
+              onClick={startAutoSetup}
+              className="auto-setup-button"
+              disabled={autoSetup}
+            >
+              {t('autoSetup')}
+            </button>
           </div>
 
           {multiplayerMode.players > 1 && <MultiplayerScoreboard />}
