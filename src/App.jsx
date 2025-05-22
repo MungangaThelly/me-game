@@ -15,7 +15,7 @@ function App() {
     </Router>
 
     <footer className="game-footer">
-        © 2025 Virtal AB. All rights reserved.
+        © 2025 Virtal AB(Munganga). All rights reserved.
       </footer>
   </>
   );
