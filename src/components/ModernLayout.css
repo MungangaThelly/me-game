@@ -386,6 +386,8 @@ button:focus-visible,
 
 @media (max-width: 420px) {
   .memory-game {
+    width: 100vw;
+    max-width: 100vw;
     padding-inline: 10px;
   }
 
@@ -394,15 +396,28 @@ button:focus-visible,
   }
 
   .game-controls {
+    width: calc(100vw - 20px);
+    max-width: calc(100vw - 20px);
     padding: 12px;
+    overflow: hidden;
+  }
+
+  .game-mode-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .game-mode-card {
+    width: 100%;
+    max-width: 100%;
     min-height: 132px;
   }
 
   .theme-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .mode-selector {
+    grid-template-columns: 1fr;
   }
 }
 
