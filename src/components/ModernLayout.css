@@ -210,6 +210,8 @@ button:focus-visible,
     min-width: 0;
     padding: 20px 16px 36px;
     overflow-x: clip;
+    overflow-y: visible;
+    touch-action: pan-y;
   }
 
   .memory-game > h1 {
@@ -258,6 +260,7 @@ button:focus-visible,
     min-width: 0;
     padding: 16px;
     border-radius: 18px;
+    touch-action: pan-y;
   }
 
   .game-mode-selector,

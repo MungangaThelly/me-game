@@ -117,6 +117,7 @@
   "rapidfire": "Rapid fire",
   "swipeHintThemes": "Swipe left/right for themes",
   "swipeHintDifficulty": "Swipe up/down for difficulty",
+  "scrollHint": "Scroll to see all options",
   "installApp": "Install App",
   "installPWA": "Install as App",
   "pwaPromptTitle": "Install Memory Game",

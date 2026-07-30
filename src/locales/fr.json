@@ -117,6 +117,7 @@
   "rapidfire": "Jeu rapide",
   "swipeHintThemes": "Balayez à gauche ou à droite pour changer de thème",
   "swipeHintDifficulty": "Balayez vers le haut ou le bas pour la difficulté",
+  "scrollHint": "Faites défiler pour voir toutes les options",
   "installApp": "Installer l'application",
   "installPWA": "Installer comme application",
   "pwaPromptTitle": "Installer le jeu de mémoire",

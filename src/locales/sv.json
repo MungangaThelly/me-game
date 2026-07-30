@@ -117,6 +117,7 @@
   "rapidfire": "Snabbeld",
   "swipeHintThemes": "Svep vänster/höger för teman",
   "swipeHintDifficulty": "Svep upp/ner för svårighet",
+  "scrollHint": "Rulla för att se alla alternativ",
   "installApp": "Installera App",
   "installPWA": "Installera som App",
   "pwaPromptTitle": "Installera Memory Spelet",

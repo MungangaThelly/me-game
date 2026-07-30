@@ -24,3 +24,13 @@ test('Netlify returns 404 for missing assets before applying the SPA fallback', 
   assert.equal(rules[0].trim(), '/assets/* /404.html 404');
   assert.equal(rules[1].trim(), '/* /index.html 200');
 });
+
+test('mobile initialization does not install document-level touch blockers', async () => {
+  const mobileManager = await readFile(
+    new URL('../src/utils/mobileManager.js', import.meta.url),
+    'utf8'
+  );
+  const initializationCalls = mobileManager.match(/this\.setupTouchEvents\(\)/g) || [];
+
+  assert.equal(initializationCalls.length, 0);
+});

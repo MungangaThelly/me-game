@@ -359,22 +359,6 @@ const MemoryGame = () => {
               const currentIndex = themes.indexOf(theme);
               const prevIndex = currentIndex === 0 ? themes.length - 1 : currentIndex - 1;
               setTheme(themes[prevIndex]);
-            },
-            onSwipeUp: () => {
-              // Increase difficulty
-              const difficulties = ['easy', 'medium', 'hard'];
-              const currentIndex = difficulties.indexOf(difficulty);
-              if (currentIndex < difficulties.length - 1) {
-                setDifficulty(difficulties[currentIndex + 1]);
-              }
-            },
-            onSwipeDown: () => {
-              // Decrease difficulty
-              const difficulties = ['easy', 'medium', 'hard'];
-              const currentIndex = difficulties.indexOf(difficulty);
-              if (currentIndex > 0) {
-                setDifficulty(difficulties[currentIndex - 1]);
-              }
             }
           });
         }
@@ -1496,8 +1480,8 @@ const MemoryGame = () => {
       {mobileManager.isMobile && (
         <div className="mobile-ui">
           <div className="swipe-hints">
-            <div className="swipe-hint">↔️ Swipe left/right for themes</div>
-            <div className="swipe-hint">↕️ Swipe up/down for difficulty</div>
+            <div className="swipe-hint">↔️ {t('swipeHintThemes')}</div>
+            <div className="swipe-hint">↕️ {t('scrollHint')}</div>
           </div>
           <button 
             className="install-pwa-button"
