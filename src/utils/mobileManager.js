@@ -23,7 +23,6 @@ class MobileManager {
     this.initializeDeferredPrompt();
     
     if (this.isMobile) {
-      this.setupTouchEvents();
       this.setupViewportMeta();
       this.setupMobileOptimizations();
       this.setupPWAFeatures();
@@ -617,7 +616,6 @@ class MobileManager {
     console.log('Initializing mobile features...');
     
     if (this.isMobile) {
-      this.setupTouchEvents();
       this.setupViewportMeta();
       this.setupMobileOptimizations();
       this.setupPWAFeatures();
