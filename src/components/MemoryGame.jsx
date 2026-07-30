@@ -312,6 +312,29 @@ const MemoryGame = () => {
   const controlsRef = useRef(null);
   const gameContainerRef = useRef(null);
   const particleEffectRef = useRef(null);
+  const playerSelectorRef = useRef(null);
+  const themeSelectorRef = useRef(null);
+  const difficultySelectorRef = useRef(null);
+  const cardGridRef = useRef(null);
+
+  const scrollToSection = useCallback((sectionRef) => {
+    window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => {
+        const section = sectionRef.current;
+        if (!section) return;
+
+        const prefersReducedMotion = window.matchMedia(
+          '(prefers-reduced-motion: reduce)'
+        ).matches;
+
+        section.scrollIntoView({
+          behavior: prefersReducedMotion ? 'auto' : 'smooth',
+          block: 'start',
+          inline: 'nearest'
+        });
+      });
+    });
+  }, []);
 
   useEffect(() => {
     setCards(shuffleCards(difficulty, theme));
@@ -868,9 +891,10 @@ const MemoryGame = () => {
     // Reset game state for new mode
     resetGame();
     soundManager.play('modeChange');
+    scrollToSection(playerSelectorRef);
   // resetGame is declared below; mode changes invoke it directly.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [difficulty]);
+  }, [difficulty, scrollToSection]);
 
   const handlePowerUp = useCallback((powerUpType) => {
     if (currentGameMode !== 'survival') return false;
@@ -1116,9 +1140,10 @@ const MemoryGame = () => {
     setCards(shuffleCards(level, theme));
     setGameStarted(true);
     resetGame();
+    scrollToSection(cardGridRef);
   // resetGame is declared below and intentionally resets the newly selected difficulty.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [theme, shuffleCards, playSound]);
+  }, [theme, shuffleCards, playSound, scrollToSection]);
 
   const changeMultiplayerMode = (mode) => {
     soundManager.play('buttonClick');
@@ -1134,6 +1159,7 @@ const MemoryGame = () => {
         }))
     );
     resetGame();
+    scrollToSection(themeSelectorRef);
   };
 
   const toggleSound = useCallback(() => {
@@ -1155,7 +1181,8 @@ const MemoryGame = () => {
   const handleThemeChange = useCallback((newTheme) => {
     soundManager.play('themeChange');
     setTheme(newTheme);
-  }, []);
+    scrollToSection(difficultySelectorRef);
+  }, [scrollToSection]);
 
   useEffect(() => {
     if (allCardsMatched && !gameOver && gameStarted) {
@@ -1595,7 +1622,10 @@ const MemoryGame = () => {
               )}
             </div>
 
-            <div className={`mode-selector ${highlightedSection === 'mode-selector' ? 'auto-setup-highlight' : ''}`}>
+            <div
+              className={`mode-selector ${highlightedSection === 'mode-selector' ? 'auto-setup-highlight' : ''}`}
+              ref={playerSelectorRef}
+            >
               <h4>{t('players')}</h4>
               {Object.values(multiplayerModes).map(mode => (
                 <button
@@ -1608,7 +1638,10 @@ const MemoryGame = () => {
               ))}
             </div>
 
-            <div className={`theme-selector ${highlightedSection === 'theme-selector' ? 'auto-setup-highlight' : ''}`}>
+            <div
+              className={`theme-selector ${highlightedSection === 'theme-selector' ? 'auto-setup-highlight' : ''}`}
+              ref={themeSelectorRef}
+            >
               <h3>{t('selectTheme')}</h3>
               <div className="theme-grid" ref={themeGridRef}>
                 {/* Built-in themes */}
@@ -1670,7 +1703,10 @@ const MemoryGame = () => {
               👀 {t('previewTheme')}
             </button>
 
-            <div className={`difficulty-buttons ${highlightedSection === 'difficulty-buttons' ? 'auto-setup-highlight' : ''}`}>
+            <div
+              className={`difficulty-buttons ${highlightedSection === 'difficulty-buttons' ? 'auto-setup-highlight' : ''}`}
+              ref={difficultySelectorRef}
+            >
               <button 
                 onClick={() => changeDifficulty(1)}
                 className={difficulty === 1 ? 'active' : ''}
@@ -1802,7 +1838,7 @@ const MemoryGame = () => {
             </div>
           </div>
 
-          <div className="card-grid">
+          <div className="card-grid" ref={cardGridRef}>
             {cards.map(card => (
               <Card
                 key={card.id}
