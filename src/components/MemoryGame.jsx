@@ -12,6 +12,7 @@ import { areAllCardsMatched, createShuffledCards } from "../utils/gameLogic";
 import { MultiplayerScoreboard, ThemePreviewModal } from "./GamePanels";
 import mobileManager from "../utils/mobileManager";
 import "./MemoryGame.css";
+import "./ModernLayout.css";
 import "../i18n";
 
 // Lazy load heavy components for better performance
@@ -67,18 +68,20 @@ const Card = memo(({ card, onCardClick, soundManager }) => {
   }, [card.id, card.isFlipped, card.isMatched, onCardClick]);
 
   return (
-    <div
+    <button
+      type="button"
       data-card-id={card.id}
       className={`card ${card.isFlipped ? "flipped" : ""} ${card.isMatched ? "matched" : ""}`}
       onClick={handleClick}
       onMouseEnter={() => soundManager.play('buttonHover')}
       aria-label={card.isFlipped || card.isMatched ? card.value : 'Flip card'}
+      disabled={card.isMatched}
     >
       <div className="card-inner">
         <div className="card-front">?</div>
         <div className="card-back">{card.value}</div>
       </div>
-    </div>
+    </button>
   );
 });
 
