@@ -34,3 +34,15 @@ test('mobile initialization does not install document-level touch blockers', asy
 
   assert.equal(initializationCalls.length, 0);
 });
+
+test('iOS users can open manual installation instructions', async () => {
+  const mobileManager = await readFile(
+    new URL('../src/utils/mobileManager.js', import.meta.url),
+    'utf8'
+  );
+
+  assert.match(
+    mobileManager,
+    /!this\.isStandalone && \(this\.isIOS \|\| this\.deferredPrompt !== null\)/
+  );
+});

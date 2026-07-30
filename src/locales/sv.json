@@ -119,6 +119,7 @@
   "swipeHintDifficulty": "Svep upp/ner för svårighet",
   "scrollHint": "Rulla för att se alla alternativ",
   "installApp": "Installera App",
+  "addToHomeScreen": "Lägg till på hemskärmen",
   "installPWA": "Installera som App",
   "pwaPromptTitle": "Installera Memory Spelet",
   "pwaPromptMessage": "Lägg till på hemskärmen för bästa upplevelse!",

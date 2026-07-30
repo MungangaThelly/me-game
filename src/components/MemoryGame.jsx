@@ -348,17 +348,20 @@ const MemoryGame = () => {
           mobileManager.setupTouchGestures(gameContainerRef.current, {
             onSwipeLeft: () => {
               // Navigate between game modes or themes
-              const themes = ['animals', 'numbers', 'colors', 'shapes'];
-              const currentIndex = themes.indexOf(theme);
-              const nextIndex = (currentIndex + 1) % themes.length;
-              setTheme(themes[nextIndex]);
+              const themeKeys = Object.keys(themes);
+              if (themeKeys.length === 0) return;
+              const currentIndex = Math.max(0, themeKeys.indexOf(theme));
+              const nextIndex = (currentIndex + 1) % themeKeys.length;
+              setTheme(themeKeys[nextIndex]);
             },
             onSwipeRight: () => {
               // Navigate to previous theme
-              const themes = ['animals', 'numbers', 'colors', 'shapes'];
-              const currentIndex = themes.indexOf(theme);
-              const prevIndex = currentIndex === 0 ? themes.length - 1 : currentIndex - 1;
-              setTheme(themes[prevIndex]);
+              const themeKeys = Object.keys(themes);
+              if (themeKeys.length === 0) return;
+              const currentIndex = Math.max(0, themeKeys.indexOf(theme));
+              const prevIndex =
+                currentIndex === 0 ? themeKeys.length - 1 : currentIndex - 1;
+              setTheme(themeKeys[prevIndex]);
             }
           });
         }
@@ -390,7 +393,7 @@ const MemoryGame = () => {
         mobileManager.removeTouchGestures(gameContainer);
       }
     };
-  }, [theme, difficulty]);
+  }, [theme, themes]);
 
   useEffect(() => {
     if (autoSetup) {
@@ -1479,7 +1482,7 @@ const MemoryGame = () => {
       {/* Mobile-specific UI elements */}
       {mobileManager.isMobile && (
         <div className="mobile-ui">
-          <div className="swipe-hints">
+          <div className="swipe-hints" role="note">
             <div className="swipe-hint">↔️ {t('swipeHintThemes')}</div>
             <div className="swipe-hint">↕️ {t('scrollHint')}</div>
           </div>
@@ -1488,7 +1491,7 @@ const MemoryGame = () => {
             onClick={() => mobileManager.promptPWAInstall()}
             style={{ display: mobileManager.canInstallPWA() ? 'block' : 'none' }}
           >
-            📱 Install App
+            📱 {mobileManager.isIOS ? t('addToHomeScreen') : t('installApp')}
           </button>
         </div>
       )}

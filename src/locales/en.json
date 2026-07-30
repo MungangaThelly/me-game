@@ -119,6 +119,7 @@
   "swipeHintDifficulty": "Swipe up/down for difficulty",
   "scrollHint": "Scroll to see all options",
   "installApp": "Install App",
+  "addToHomeScreen": "Add to Home Screen",
   "installPWA": "Install as App",
   "pwaPromptTitle": "Install Memory Game",
   "pwaPromptMessage": "Add to your home screen for the best experience!",

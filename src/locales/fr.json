@@ -119,6 +119,7 @@
   "swipeHintDifficulty": "Balayez vers le haut ou le bas pour la difficulté",
   "scrollHint": "Faites défiler pour voir toutes les options",
   "installApp": "Installer l'application",
+  "addToHomeScreen": "Ajouter à l’écran d’accueil",
   "installPWA": "Installer comme application",
   "pwaPromptTitle": "Installer le jeu de mémoire",
   "pwaPromptMessage": "Ajoutez-le à votre écran d'accueil pour une expérience optimale !",

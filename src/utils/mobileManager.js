@@ -578,7 +578,9 @@ class MobileManager {
 
   // PWA Installation Methods
   canInstallPWA() {
-    return !this.isStandalone && this.deferredPrompt !== null;
+    // iOS Safari does not expose beforeinstallprompt, so keep the manual
+    // "Add to Home Screen" action available there.
+    return !this.isStandalone && (this.isIOS || this.deferredPrompt !== null);
   }
 
   promptPWAInstall() {
