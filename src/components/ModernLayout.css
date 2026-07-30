@@ -233,9 +233,10 @@ button:focus-visible,
   }
 
   .swipe-hints {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 6px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 4px;
     padding: 0;
     border: 0;
     background: transparent;
@@ -244,14 +245,15 @@ button:focus-visible,
 
   .swipe-hint {
     min-width: 0;
-    padding: 7px 8px;
+    padding: 2px 5px;
     white-space: normal;
     font-size: 0.75rem;
     line-height: 1.25;
     color: #34345f;
     border: 0;
-    background: rgba(255, 255, 255, 0.72);
+    background: transparent;
     box-shadow: none;
+    cursor: default;
   }
 
   .game-controls {
