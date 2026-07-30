@@ -315,6 +315,7 @@ const MemoryGame = () => {
   const playerSelectorRef = useRef(null);
   const themeSelectorRef = useRef(null);
   const difficultySelectorRef = useRef(null);
+  const languageSelectorRef = useRef(null);
   const cardGridRef = useRef(null);
 
   const scrollToSection = useCallback((sectionRef) => {
@@ -1140,7 +1141,7 @@ const MemoryGame = () => {
     setCards(shuffleCards(level, theme));
     setGameStarted(true);
     resetGame();
-    scrollToSection(cardGridRef);
+    scrollToSection(languageSelectorRef);
   // resetGame is declared below and intentionally resets the newly selected difficulty.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [theme, shuffleCards, playSound, scrollToSection]);
@@ -1183,6 +1184,12 @@ const MemoryGame = () => {
     setTheme(newTheme);
     scrollToSection(difficultySelectorRef);
   }, [scrollToSection]);
+
+  const handleLanguageChange = (language) => {
+    changeLanguage(language);
+    soundManager.play('buttonClick');
+    scrollToSection(cardGridRef);
+  };
 
   useEffect(() => {
     if (allCardsMatched && !gameOver && gameStarted) {
@@ -1824,14 +1831,17 @@ const MemoryGame = () => {
                 🌐 {isMultiplayerConnected ? 'Online' : 'Multiplayer'}
               </button>
               
-              <div className={`language-buttons ${highlightedSection === 'language-buttons' ? 'auto-setup-highlight' : ''}`}>
-                <button onClick={() => changeLanguage("sv")}>
+              <div
+                className={`language-buttons ${highlightedSection === 'language-buttons' ? 'auto-setup-highlight' : ''}`}
+                ref={languageSelectorRef}
+              >
+                <button onClick={() => handleLanguageChange("sv")}>
                   🇸🇪 {t('swedish')}
                 </button>
-                <button onClick={() => changeLanguage("en")}>
+                <button onClick={() => handleLanguageChange("en")}>
                   🇬🇧 {t('english')}
                 </button>
-                <button onClick={() => changeLanguage("fr")}>
+                <button onClick={() => handleLanguageChange("fr")}>
                   🇫🇷 {t('french')}
                 </button>
               </div>
