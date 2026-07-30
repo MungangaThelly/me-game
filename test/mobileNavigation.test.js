@@ -11,7 +11,9 @@ test('manual setup selections advance to the next section', async () => {
   assert.match(source, /scrollToSection\(playerSelectorRef\)/);
   assert.match(source, /scrollToSection\(themeSelectorRef\)/);
   assert.match(source, /scrollToSection\(difficultySelectorRef\)/);
+  assert.match(source, /scrollToSection\(languageSelectorRef\)/);
   assert.match(source, /scrollToSection\(cardGridRef\)/);
+  assert.match(source, /handleLanguageChange\("fr"\)/);
 });
 
 test('automatic section scrolling respects reduced motion', async () => {
