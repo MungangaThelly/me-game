@@ -188,7 +188,7 @@ class AccessibilityManager {
     }
   }
 
-  handleEscape(e) {
+  handleEscape() {
     // Close modals or return focus
     const modal = document.querySelector('.modal:not([hidden])');
     if (modal) {

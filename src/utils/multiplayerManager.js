@@ -324,7 +324,7 @@ class MultiplayerManager {
     this.emit('roomJoined', message.room);
   }
 
-  handleRoomLeft(message) {
+  handleRoomLeft() {
     this.currentRoom = null;
     this.emit('roomLeft');
   }

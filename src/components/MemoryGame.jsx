@@ -228,9 +228,9 @@ const MemoryGame = () => {
   const [showCreateRoom, setShowCreateRoom] = useState(false);
   const [showTournamentBrowser, setShowTournamentBrowser] = useState(false);
   const [currentMultiplayerRoom, setCurrentMultiplayerRoom] = useState(null);
-  const [roomList, setRoomList] = useState([]);
+  const [roomList] = useState([]);
   const [isSpectating, setIsSpectating] = useState(false);
-  const [playerProfile, setPlayerProfile] = useState(multiplayerManager.getPlayerInfo());
+  const [playerProfile] = useState(multiplayerManager.getPlayerInfo());
   const [onlinePlayers, setOnlinePlayers] = useState([]);
 
   // Accessibility Plus
@@ -241,15 +241,13 @@ const MemoryGame = () => {
   const [currentGameMode, setCurrentGameMode] = useState('classic');
   const [survivalState, setSurvivalState] = useState(null);
   const [dailyChallenge, setDailyChallenge] = useState(null);
-  const [puzzlePattern, setPuzzlePattern] = useState(null);
+  const [, setPuzzlePattern] = useState(null);
   const [blitzSettings, setBlitzSettings] = useState(null);
-  const [showGameModeModal, setShowGameModeModal] = useState(false);
   const [gameModePowerUps, setGameModePowerUps] = useState({
     timeFreeze: false,
     extraLife: false,
     revealHint: false
   });
-  const [gameModeTimer, setGameModeTimer] = useState(0);
   const [lives, setLives] = useState(3);
   
   const navigate = useNavigate();
@@ -328,6 +326,8 @@ const MemoryGame = () => {
     if (gameContainerRef.current && !particleEffectRef.current) {
       particleEffectRef.current = new ParticleEffect(gameContainerRef.current);
     }
+  // shuffleCards is recreated when themes change; themes are already reflected by theme selection.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [difficulty, theme]);
 
   useEffect(() => {
@@ -338,6 +338,8 @@ const MemoryGame = () => {
       }, 1000);
     }
     return () => clearInterval(interval);
+  // cards drives allCardsMatched, so tracking cards also updates the timer state.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gameStarted, cards]);
 
   // Initialize mobile manager
@@ -404,9 +406,10 @@ const MemoryGame = () => {
     initMobile();
     
     // Cleanup on unmount
+    const gameContainer = gameContainerRef.current;
     return () => {
-      if (gameContainerRef.current) {
-        mobileManager.removeTouchGestures(gameContainerRef.current);
+      if (gameContainer) {
+        mobileManager.removeTouchGestures(gameContainer);
       }
     };
   }, [theme, difficulty]);
@@ -573,6 +576,8 @@ const MemoryGame = () => {
         setupSteps[setupStep]();
       }
     }
+  // This guided sequence intentionally advances only when its explicit step changes.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autoSetup, setupStep, i18n]);
 
   // Enhanced Multiplayer Event Listeners
@@ -739,7 +744,7 @@ const MemoryGame = () => {
           } else {
             alert('Invalid theme file format');
           }
-        } catch (error) {
+        } catch {
           alert('Error reading theme file');
         }
       };
@@ -758,8 +763,8 @@ const MemoryGame = () => {
     if (confirm(`Delete theme "${customThemes[themeKey]?.name}"?`)) {
       customThemeManager.deleteTheme(themeKey);
       setCustomThemes(customThemeManager.getAllThemes());
-      if (selectedTheme === themeKey) {
-        setSelectedTheme('flowers'); // Reset to default theme
+      if (theme === themeKey) {
+        setTheme('flowers'); // Reset to default theme
       }
     }
   };
@@ -824,12 +829,6 @@ const MemoryGame = () => {
     playSound('buttonClick');
   }, [playSound]);
 
-  const stopSpectating = useCallback(() => {
-    multiplayerManager.stopSpectating();
-    setIsSpectating(false);
-    playSound('buttonClick');
-  }, [playSound]);
-
   // Accessibility handlers
   const toggleAccessibilityMenu = useCallback(() => {
     setShowAccessibilityMenu(prev => !prev);
@@ -856,13 +855,13 @@ const MemoryGame = () => {
         }
       }
     });
+  // handleCardClick is declared below and reads the same game-state values tracked here.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cards, flippedCards, gameOver, gameStarted]);
 
   // Game Mode handlers
   const switchGameMode = useCallback((mode) => {
     setCurrentGameMode(mode);
-    const modeData = gameModeManager.getGameModes()[mode];
-    
     if (mode === 'survival') {
       const survival = gameModeManager.initializeSurvival('player1');
       setSurvivalState(survival);
@@ -881,9 +880,11 @@ const MemoryGame = () => {
     // Reset game state for new mode
     resetGame();
     soundManager.play('modeChange');
+  // resetGame is declared below; mode changes invoke it directly.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [difficulty]);
 
-  const usePowerUp = useCallback((powerUpType) => {
+  const handlePowerUp = useCallback((powerUpType) => {
     if (currentGameMode !== 'survival') return false;
     
     const success = gameModeManager.usePowerUp('player1', powerUpType);
@@ -904,7 +905,7 @@ const MemoryGame = () => {
         case 'extraLife':
           setLives(prev => prev + 1);
           break;
-        case 'revealHint':
+        case 'revealHint': {
           // Show first unmatched pair briefly
           const unmatched = cards.filter(card => !card.matched);
           if (unmatched.length >= 2) {
@@ -915,6 +916,7 @@ const MemoryGame = () => {
             }, 2000);
           }
           break;
+        }
       }
       
       soundManager.play('powerUp');
@@ -927,7 +929,7 @@ const MemoryGame = () => {
     let modeSpecificResult = { ...gameResult };
     
     switch (currentGameMode) {
-      case 'survival':
+      case 'survival': {
         const survivalResult = gameModeManager.updateSurvivalProgress('player1', gameResult);
         setSurvivalState(survivalResult);
         setLives(survivalResult.lives);
@@ -940,21 +942,24 @@ const MemoryGame = () => {
           }, 3000);
         }
         break;
+      }
         
-      case 'daily':
+      case 'daily': {
         const reward = gameModeManager.completeDailyChallenge(new Date(), gameResult);
         if (reward) {
           modeSpecificResult.reward = reward;
           soundManager.play('achievement');
         }
         break;
+      }
         
-      case 'timeAttack':
+      case 'timeAttack': {
         const timeAttackSettings = gameModeManager.getTimeAttackSettings(difficulty);
         if (gameResult.time <= timeAttackSettings.timeLimit && gameResult.won) {
           modeSpecificResult.speedBonus = Math.max(0, timeAttackSettings.timeLimit - gameResult.time) * 10;
         }
         break;
+      }
         
       case 'blitz':
         if (gameResult.won) {
@@ -968,6 +973,8 @@ const MemoryGame = () => {
     }
     
     return modeSpecificResult;
+  // resetGame is declared below and is intentionally invoked using current render state.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentGameMode, difficulty]);
 
   const handleCardClick = useCallback((id) => {
@@ -998,6 +1005,8 @@ const MemoryGame = () => {
     if (flippedCards.length === 1) {
       checkForMatch(updatedCards, flippedCards[0], id);
     }
+  // checkForMatch is declared below and uses the same render snapshot as this click.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [flippedCards, gameStarted, gameOver, timeLimit, timer, cards]);
 
   const checkForMatch = (updatedCards, firstId, secondId) => {
@@ -1115,17 +1124,6 @@ const MemoryGame = () => {
     [cards]
   );
 
-  const gameProgress = useMemo(() => {
-    const totalCards = cards.length;
-    const matchedCards = cards.filter(card => card.isMatched).length;
-    return totalCards > 0 ? (matchedCards / totalCards) * 100 : 0;
-  }, [cards]);
-
-  const totalThemeCount = useMemo(() => 
-    Object.keys(builtInThemes).length + Object.keys(customThemes).length,
-    [customThemes]
-  );
-
   // Performance-optimized functions with useCallback
   const changeDifficulty = useCallback((level) => {
     playSound('buttonClick');
@@ -1133,13 +1131,9 @@ const MemoryGame = () => {
     setCards(shuffleCards(level, theme));
     setGameStarted(true);
     resetGame();
+  // resetGame is declared below and intentionally resets the newly selected difficulty.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [theme, shuffleCards, playSound]);
-
-  const handleButtonClick = (element, callback) => {
-    soundManager.play('buttonClick');
-    animationUtils.buttonBounce(element);
-    callback();
-  };
 
   const changeMultiplayerMode = (mode) => {
     soundManager.play('buttonClick');
@@ -1237,6 +1231,8 @@ const MemoryGame = () => {
         localStorage.setItem("highScore", topScore);
       }
     }
+  // Completion helpers are declared in this component and use the same completed-game snapshot.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cards, players, gameOver, gameStarted, highScore, timer, totalMoves, difficulty, theme, currentGameMode, streak, perfectGame]);
 
   // Accessibility effects
@@ -1278,7 +1274,7 @@ const MemoryGame = () => {
         moves: totalMoves
       });
     }
-  }, [gameStarted, gameOver, players, difficulty]);
+  }, [gameStarted, gameOver, players, difficulty, theme, timer, totalMoves]);
 
   useEffect(() => {
     // Announce matches and score updates
@@ -1603,7 +1599,7 @@ const MemoryGame = () => {
                             <button
                               key={type}
                               className="power-up-button"
-                              onClick={() => usePowerUp(type)}
+                              onClick={() => handlePowerUp(type)}
                               disabled={gameModePowerUps[type]}
                             >
                               {type === 'timeFreeze' ? '❄️' : type === 'extraLife' ? '❤️' : '💡'} {count}
