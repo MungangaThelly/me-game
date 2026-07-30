@@ -8,6 +8,8 @@ import customThemeManager from "../utils/customThemes";
 import multiplayerManager from "../utils/multiplayerManager";
 import accessibilityManager from "../utils/accessibilityManager";
 import gameModeManager from "../utils/gameModes";
+import { areAllCardsMatched, createShuffledCards } from "../utils/gameLogic";
+import { MultiplayerScoreboard, ThemePreviewModal } from "./GamePanels";
 import mobileManager from "../utils/mobileManager";
 import "./MemoryGame.css";
 import "../i18n";
@@ -228,7 +230,7 @@ const MemoryGame = () => {
   const [showCreateRoom, setShowCreateRoom] = useState(false);
   const [showTournamentBrowser, setShowTournamentBrowser] = useState(false);
   const [currentMultiplayerRoom, setCurrentMultiplayerRoom] = useState(null);
-  const [roomList] = useState([]);
+  const [roomList, setRoomList] = useState([]);
   const [isSpectating, setIsSpectating] = useState(false);
   const [playerProfile] = useState(multiplayerManager.getPlayerInfo());
   const [onlinePlayers, setOnlinePlayers] = useState([]);
@@ -296,23 +298,8 @@ const MemoryGame = () => {
   }, [customThemes]);
 
   // Shuffle cards function - now inside component to access themes
-  const shuffleCards = (difficulty, theme) => {
-    const selectedSymbols = themes[theme].slice(0, difficulty * 5);
-
-    let cardPairs = selectedSymbols
-      .flatMap(value => [
-        { id: Math.random(), value, isFlipped: false, isMatched: false },
-        { id: Math.random(), value, isFlipped: false, isMatched: false }
-      ])
-      .sort(() => Math.random() - 0.5);
-
-    return cardPairs.map((card, index) => ({
-      id: index,
-      value: card.value,
-      isFlipped: false,
-      isMatched: false
-    }));
-  };
+  const shuffleCards = (difficulty, theme) =>
+    createShuffledCards(themes[theme], difficulty);
   
   const themeGridRef = useRef(null);
   const controlsRef = useRef(null);
@@ -598,6 +585,10 @@ const MemoryGame = () => {
       setShowMultiplayerMenu(false);
     };
 
+    const handleRoomList = (rooms) => {
+      setRoomList(rooms);
+    };
+
     const handlePlayerJoined = (player) => {
       if (currentMultiplayerRoom) {
         setOnlinePlayers(prev => [...prev, player]);
@@ -623,6 +614,7 @@ const MemoryGame = () => {
     multiplayerManager.on('connected', handleMultiplayerConnected);
     multiplayerManager.on('disconnected', handleMultiplayerDisconnected);
     multiplayerManager.on('roomJoined', handleRoomJoined);
+    multiplayerManager.on('roomList', handleRoomList);
     multiplayerManager.on('playerJoined', handlePlayerJoined);
     multiplayerManager.on('playerLeft', handlePlayerLeft);
     multiplayerManager.on('gameState', handleGameState);
@@ -632,6 +624,7 @@ const MemoryGame = () => {
       multiplayerManager.off('connected', handleMultiplayerConnected);
       multiplayerManager.off('disconnected', handleMultiplayerDisconnected);
       multiplayerManager.off('roomJoined', handleRoomJoined);
+      multiplayerManager.off('roomList', handleRoomList);
       multiplayerManager.off('playerJoined', handlePlayerJoined);
       multiplayerManager.off('playerLeft', handlePlayerLeft);
       multiplayerManager.off('gameState', handleGameState);
@@ -780,6 +773,7 @@ const MemoryGame = () => {
       // Use mock server for development
       await multiplayerManager.connectMockServer();
       setIsMultiplayerConnected(true);
+      multiplayerManager.getRoomList();
       playSound('gameComplete');
     } catch (error) {
       console.error('Failed to connect to multiplayer:', error);
@@ -1119,10 +1113,7 @@ const MemoryGame = () => {
   };
 
   // Memoized expensive calculations
-  const allCardsMatched = useMemo(() => 
-    cards.every(card => card.isMatched), 
-    [cards]
-  );
+  const allCardsMatched = useMemo(() => areAllCardsMatched(cards), [cards]);
 
   // Performance-optimized functions with useCallback
   const changeDifficulty = useCallback((level) => {
@@ -1283,20 +1274,6 @@ const MemoryGame = () => {
       accessibilityManager.announce(`Score: ${activePlayer.score} points`);
     }
   }, [players, currentPlayer]);
-
-  const ThemePreviewModal = () => (
-    <div className="modal-overlay" onClick={() => setShowThemeModal(false)}>
-      <div className="theme-preview-modal" onClick={e => e.stopPropagation()}>
-        <h3>{t('themePreview')}</h3>
-        <div className="theme-preview-grid">
-          {themes[theme].slice(0, difficulty * 5).map((emoji, i) => (
-            <div key={i} className="preview-emoji">{emoji}</div>
-          ))}
-        </div>
-        <button onClick={() => setShowThemeModal(false)}>{t('close')}</button>
-      </div>
-    </div>
-  );
 
   const StatsModal = () => (
     <div className="modal-overlay" onClick={() => setShowStatsModal(false)}>
@@ -1501,17 +1478,6 @@ const MemoryGame = () => {
           </button>
         </div>
       </div>
-    </div>
-  );
-
-  const MultiplayerScoreboard = () => (
-    <div className="scoreboard">
-      {players.map((player, i) => (
-        <div key={i} className={`player ${i === currentPlayer ? 'active' : ''}`}>
-          <span>{player.name}</span>
-          <span>{player.score}</span>
-        </div>
-      ))}
     </div>
   );
 
@@ -1781,7 +1747,9 @@ const MemoryGame = () => {
             </div>
           </div>
 
-          {multiplayerMode.players > 1 && <MultiplayerScoreboard />}
+          {multiplayerMode.players > 1 && (
+            <MultiplayerScoreboard players={players} currentPlayer={currentPlayer} />
+          )}
 
           <div className="game-info">
             <div className="game-stats">
@@ -1850,7 +1818,14 @@ const MemoryGame = () => {
         </>
       )}
 
-      {showThemeModal && <ThemePreviewModal />}
+      {showThemeModal && (
+        <ThemePreviewModal
+          difficulty={difficulty}
+          emojis={themes[theme]}
+          onClose={() => setShowThemeModal(false)}
+          t={t}
+        />
+      )}
       {showStatsModal && <StatsModal />}
       {showAccessibilityMenu && <AccessibilityModal />}
       
@@ -1967,15 +1942,27 @@ const MemoryGame = () => {
               <button onClick={() => setShowCreateRoom(false)} className="close-button">✕</button>
             </div>
             
-            <div className="room-settings">
+            <form
+              className="room-settings"
+              onSubmit={(event) => {
+                event.preventDefault();
+                const data = new FormData(event.currentTarget);
+                createMultiplayerRoom({
+                  name: data.get('roomName'),
+                  maxPlayers: Number(data.get('maxPlayers')),
+                  isPrivate: data.get('isPrivate') === 'on',
+                  allowSpectators: data.get('allowSpectators') === 'on'
+                });
+              }}
+            >
               <label>
                 Room Name:
-                <input type="text" placeholder="My Awesome Room" />
+                <input name="roomName" type="text" placeholder="My Awesome Room" required />
               </label>
               
               <label>
                 Max Players:
-                <select defaultValue="4">
+                <select name="maxPlayers" defaultValue="4">
                   <option value="2">2 Players</option>
                   <option value="3">3 Players</option>
                   <option value="4">4 Players</option>
@@ -1984,24 +1971,23 @@ const MemoryGame = () => {
               </label>
               
               <label>
-                <input type="checkbox" />
+                <input name="isPrivate" type="checkbox" />
                 Private Room
               </label>
               
               <label>
-                <input type="checkbox" defaultChecked />
+                <input name="allowSpectators" type="checkbox" defaultChecked />
                 Allow Spectators
               </label>
-            </div>
-            
-            <div className="room-actions">
+              <div className="room-actions">
               <button 
-                onClick={() => createMultiplayerRoom({ name: 'Test Room' })}
+                type="submit"
                 className="create-button"
               >
                 🎮 Create & Join Room
               </button>
-            </div>
+              </div>
+            </form>
           </div>
         </div>
       )}

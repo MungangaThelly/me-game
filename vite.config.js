@@ -5,20 +5,8 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   build: {
-    outDir: 'dist', // ✅ Explicitly set output folder
-    assetsInlineLimit: 4096,
-    rollupOptions: {
-      // Include service worker in build
-      input: {
-        main: 'index.html',
-        sw: 'public/sw.js'
-      },
-      output: {
-        entryFileNames: (chunkInfo) => {
-          return chunkInfo.name === 'sw' ? 'sw.js' : '[name]-[hash].js'
-        }
-      }
-    }
+    outDir: 'dist',
+    assetsInlineLimit: 4096
   },
   server: {
     // Enable HTTPS for PWA features in development

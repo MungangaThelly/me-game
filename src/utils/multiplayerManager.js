@@ -14,6 +14,8 @@ class MultiplayerManager {
     this.connectionAttempts = 0;
     this.maxReconnectAttempts = 5;
     this.reconnectDelay = 1000;
+    this.isMockMode = false;
+    this.mockRooms = [];
     
     // Initialize from localStorage
     this.loadPlayerProfile();
@@ -140,6 +142,7 @@ class MultiplayerManager {
     }
     this.isConnected = false;
     this.currentRoom = null;
+    this.isMockMode = false;
   }
 
   handleReconnection() {
@@ -213,6 +216,26 @@ class MultiplayerManager {
 
   // Room Management
   createRoom(roomConfig) {
+    if (this.isMockMode) {
+      const room = {
+        id: `room_${Date.now()}`,
+        name: roomConfig.name || `${this.playerInfo.username}'s Room`,
+        maxPlayers: Number(roomConfig.maxPlayers) || 4,
+        currentPlayers: 1,
+        gameMode: roomConfig.gameMode || 'classic',
+        difficulty: roomConfig.difficulty || 2,
+        theme: roomConfig.theme || 'fruits',
+        isPrivate: Boolean(roomConfig.isPrivate),
+        allowSpectators: roomConfig.allowSpectators !== false,
+        players: [this.playerInfo]
+      };
+      this.mockRooms.push(room);
+      this.currentRoom = room;
+      this.emit('roomList', [...this.mockRooms]);
+      this.emit('roomJoined', room);
+      return;
+    }
+
     this.sendMessage({
       type: 'createRoom',
       config: {
@@ -229,6 +252,17 @@ class MultiplayerManager {
   }
 
   joinRoom(roomId, password = null) {
+    if (this.isMockMode) {
+      const room = this.mockRooms.find((candidate) => candidate.id === roomId);
+      if (room && room.currentPlayers < room.maxPlayers) {
+        room.currentPlayers += 1;
+        this.currentRoom = room;
+        this.emit('roomJoined', room);
+        this.emit('roomList', [...this.mockRooms]);
+      }
+      return;
+    }
+
     this.sendMessage({
       type: 'joinRoom',
       roomId,
@@ -237,6 +271,14 @@ class MultiplayerManager {
   }
 
   leaveRoom() {
+    if (this.isMockMode && this.currentRoom) {
+      this.currentRoom.currentPlayers = Math.max(0, this.currentRoom.currentPlayers - 1);
+      this.currentRoom = null;
+      this.emit('roomLeft');
+      this.emit('roomList', [...this.mockRooms]);
+      return;
+    }
+
     if (this.currentRoom) {
       this.sendMessage({
         type: 'leaveRoom',
@@ -246,6 +288,12 @@ class MultiplayerManager {
   }
 
   getRoomList() {
+    if (this.isMockMode) {
+      const rooms = [...this.mockRooms];
+      this.emit('roomList', rooms);
+      return rooms;
+    }
+
     this.sendMessage({
       type: 'getRoomList'
     });
@@ -413,20 +461,17 @@ class MultiplayerManager {
   // Mock server connection for development
   connectMockServer() {
     console.log('Connecting to mock multiplayer server...');
-    
-    // Simulate connection delay
-    setTimeout(() => {
-      this.isConnected = true;
-      this.emit('connected');
-      
-      // Simulate authentication
+
+    return new Promise((resolve) => {
       setTimeout(() => {
+        this.isMockMode = true;
+        this.isConnected = true;
+        this.emit('connected');
         this.emit('authenticated', this.playerInfo);
-      }, 500);
-      
-    }, 1000);
-    
-    return Promise.resolve();
+        this.emit('roomList', [...this.mockRooms]);
+        resolve();
+      }, 300);
+    });
   }
 }
 
