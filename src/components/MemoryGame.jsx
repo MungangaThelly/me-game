@@ -1516,10 +1516,6 @@ const MemoryGame = () => {
       {/* Mobile-specific UI elements */}
       {mobileManager.isMobile && (
         <div className="mobile-ui">
-          <div className="swipe-hints" role="note">
-            <div className="swipe-hint">↔️ {t('swipeHintThemes')}</div>
-            <div className="swipe-hint">↕️ {t('scrollHint')}</div>
-          </div>
           <button 
             className="install-pwa-button"
             onClick={() => mobileManager.promptPWAInstall()}
