@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback, memo, Suspense, lazy } from "react";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
 import soundManager from "../utils/soundEffects";
 import { ParticleEffect, animationUtils } from "../utils/animations";
 import gameStats from "../utils/gameStats";
@@ -255,7 +254,6 @@ const MemoryGame = () => {
   });
   const [lives, setLives] = useState(3);
   
-  const navigate = useNavigate();
   const { t, i18n } = useTranslation();
   const changeLanguage = (language) => {
     localStorage.setItem('language', language);
@@ -1543,7 +1541,7 @@ const MemoryGame = () => {
           <p>{t('highScore')}: {highScore}</p>
           <div className="game-over-actions">
             <button onClick={resetGame}>{t('playAgain')}</button>
-            <button onClick={() => navigate('/')}>{t('returnHome')}</button>
+            <button onClick={() => window.location.assign('/')}>{t('returnHome')}</button>
           </div>
         </div>
       ) : (

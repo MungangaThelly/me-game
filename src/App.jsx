@@ -1,23 +1,18 @@
-// src/App.jsx
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
-import MemoryGame from './components/MemoryGame'; 
+import MemoryGame from './components/MemoryGame';
 
 function App() {
+  const isGameRoute = window.location.pathname === '/memory-game';
+
   return (
     <>
-    <Router>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/memory-game" element={<MemoryGame />} />
-      </Routes>
-    </Router>
+      {isGameRoute ? <MemoryGame /> : <Home />}
 
-    <footer className="game-footer">
-        © 2025 Virtal AB(Munganga). All rights reserved.
+      <footer className="game-footer">
+        © 2025 Virtal AB (Munganga). All rights reserved.
       </footer>
-  </>
+    </>
   );
 }
 

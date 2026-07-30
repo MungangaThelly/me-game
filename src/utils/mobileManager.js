@@ -389,10 +389,16 @@ class MobileManager {
   showUpdateAvailable() {
     const notification = document.createElement('div');
     notification.className = 'update-notification';
-    notification.innerHTML = `
-      <span>New version available!</span>
-      <button onclick="window.location.reload()">Update</button>
-    `;
+
+    const message = document.createElement('span');
+    message.textContent = 'New version available!';
+
+    const updateButton = document.createElement('button');
+    updateButton.type = 'button';
+    updateButton.textContent = 'Update';
+    updateButton.addEventListener('click', () => window.location.reload());
+
+    notification.append(message, updateButton);
     notification.style.cssText = `
       position: fixed;
       top: 20px;
@@ -601,7 +607,7 @@ class MobileManager {
   }
 
   showInstallInstructions() {
-    let instructions = '';
+    let instructions;
     if (this.isIOS) {
       instructions = 'To install this app on your iOS device, tap the Share button and then "Add to Home Screen".';
     } else if (this.isAndroid) {
