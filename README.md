@@ -1,23 +1,27 @@
 # Memory Game Pro
 
-A React memory-matching game with several local game modes, custom emoji themes,
-statistics, accessibility preferences, sound effects, and installable PWA support.
+A responsive, multilingual memory-matching game built with React and Vite.
 
 Live site: [letplayalways.it-weor.se](https://letplayalways.it-weor.se/)
 
+The French dashboard is titled **Le Royaume des Enfants**.
+
 ## Features
 
-- Classic, time attack, survival, puzzle, daily, and blitz modes
-- One to four players sharing the same device
-- Local multiplayer room simulation for demonstrating room flows
-- Built-in and user-created emoji themes
-- English and Swedish translations
-- Local statistics and preferences
-- Keyboard and mobile controls
-- Offline application shell and runtime asset caching
+- Classic, time attack, survival, puzzle, daily, and blitz game modes
+- Solo, two-player versus, and four-player team play on the same device
+- 16 built-in emoji themes plus user-created themes
+- English, Swedish, and French interfaces
+- Guided setup scrolling from game mode through language to the game board
+- Local statistics, achievements, preferences, and theme storage
+- Keyboard, touch, sound, vibration, and accessibility preferences
+- Installable PWA with offline shell and runtime asset caching
+- iOS **Add to Home Screen** guidance
+- Mock multiplayer room flows for interface demonstrations
 
-Online rooms, tournaments, global leaderboards, and cross-device synchronization
-require a WebSocket/backend service and are not included in this repository.
+Production-ready online rooms, tournaments, global leaderboards, and
+cross-device synchronization require a separate WebSocket/backend service and
+are not included in this repository.
 
 ## Development
 
@@ -28,7 +32,9 @@ npm install
 npm run dev
 ```
 
-Quality checks:
+Vite prints the local development address after startup.
+
+## Quality checks
 
 ```bash
 npm test
@@ -37,29 +43,56 @@ npm run build
 npm audit
 ```
 
+The tests cover core game logic, game-mode rules, translation parity, guided
+mobile navigation, service-worker behavior, Netlify routing, and iOS
+installation guidance.
+
 The production build is written to `dist/`.
 
-## Structure
+## Project structure
 
 ```text
 src/
-  components/   React game UI
+  components/   React game UI and styles
   pages/        Route-level pages
-  locales/      English and Swedish translations
+  locales/      English, Swedish, and French translations
   utils/        Game rules and browser-service managers
-public/         Manifest, icon, and service worker
-test/           Node-based unit tests for pure game behavior
+public/         Manifest, icon, redirects, and service worker
+test/           Node-based logic, locale, navigation, and PWA tests
 ```
 
-Player data, custom themes, and preferences are stored in the browser with
-`localStorage`; they are not uploaded to a server.
+Player data, custom themes, statistics, achievements, and preferences are stored
+in the browser with `localStorage`; they are not uploaded to a server.
+
+## Mobile setup flow
+
+Each manual selection scrolls to the next core setup section:
+
+```text
+Game mode → Players → Theme → Difficulty → Language → Game board
+```
+
+The scrolling respects reduced-motion preferences and does not prevent native
+manual scrolling.
+
+## PWA installation
+
+- Chromium-based browsers show an install action when the browser makes it
+  available.
+- iPhone and iPad users receive manual **Add to Home Screen** instructions.
+- The install action is hidden when the app is already running in standalone
+  mode.
 
 ## Deployment
 
-The project is built with Vite and can be deployed to Netlify using:
+The project is configured for Netlify:
 
 - Build command: `npm run build`
 - Publish directory: `dist`
+- SPA fallback: `public/_redirects`
+
+Missing assets return a real 404 before the SPA fallback is applied, preventing
+stale JavaScript paths from receiving HTML responses.
 
 ## License
 
