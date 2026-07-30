@@ -254,6 +254,10 @@ const MemoryGame = () => {
   
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
+  const changeLanguage = (language) => {
+    localStorage.setItem('language', language);
+    i18n.changeLanguage(language);
+  };
 
   // Combine built-in and custom themes
   const themes = useMemo(() => {
@@ -526,11 +530,11 @@ const MemoryGame = () => {
             }
           }, 300);
           
-          const languages = ['en', 'sv'];
+          const languages = ['en', 'sv', 'fr'];
           let currentLangIndex = 0;
           
           const langInterval = setInterval(() => {
-            i18n.changeLanguage(languages[currentLangIndex]);
+            changeLanguage(languages[currentLangIndex]);
             currentLangIndex++;
             
             if (currentLangIndex >= languages.length) {
@@ -1795,11 +1799,14 @@ const MemoryGame = () => {
               </button>
               
               <div className={`language-buttons ${highlightedSection === 'language-buttons' ? 'auto-setup-highlight' : ''}`}>
-                <button onClick={() => i18n.changeLanguage("sv")}>
+                <button onClick={() => changeLanguage("sv")}>
                   🇸🇪 {t('swedish')}
                 </button>
-                <button onClick={() => i18n.changeLanguage("en")}>
+                <button onClick={() => changeLanguage("en")}>
                   🇬🇧 {t('english')}
+                </button>
+                <button onClick={() => changeLanguage("fr")}>
+                  🇫🇷 {t('french')}
                 </button>
               </div>
             </div>
