@@ -528,7 +528,7 @@ class MobileManager {
   }
 
   // Performance monitoring
-  monitorPerformance() {
+  monitorRenderPerformance() {
     if ('performance' in window) {
       const observer = new PerformanceObserver((list) => {
         const entries = list.getEntries();
@@ -737,28 +737,6 @@ class MobileManager {
           console.warn('Low FPS detected:', metrics.fps);
         }
       });
-    }
-  }
-
-  // Haptic feedback
-  hapticFeedback(type = 'light') {
-    if (!this.supportsHaptics || !navigator.vibrate) return;
-
-    const patterns = {
-      light: 50,
-      medium: 100,
-      heavy: 200,
-      success: [50, 100, 50],
-      error: [100, 50, 100, 50, 100],
-      warning: [75, 75, 75]
-    };
-
-    const pattern = patterns[type] || patterns.light;
-    
-    try {
-      navigator.vibrate(pattern);
-    } catch (error) {
-      console.warn('Haptic feedback failed:', error);
     }
   }
 

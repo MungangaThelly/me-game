@@ -59,7 +59,7 @@ class GameStats {
     localStorage.setItem(this.storageKey, JSON.stringify(this.stats));
   }
 
-  recordGameStart(difficulty, theme, gameMode) {
+  recordGameStart(difficulty, theme) {
     this.stats.gamesPlayed++;
     
     // Initialize theme stats if not exists

@@ -193,7 +193,7 @@ class GameModeManager {
       cascade: {
         name: 'Cascade Pattern',
         description: 'Each match reveals more cards',
-        generator: (cards) => {
+        generator: () => {
           // Only show 4 cards initially, reveal more as matches are made
           return { 
             cascadeReveal: true,
@@ -205,7 +205,7 @@ class GameModeManager {
       mirror: {
         name: 'Mirror Match',
         description: 'Match pairs symmetrically across the board',
-        generator: (cards) => {
+        generator: () => {
           // Cards must be matched in mirror positions
           return { mirrorMode: true };
         }
@@ -390,7 +390,7 @@ class GameModeManager {
   }
 
   // Get leaderboards for daily challenges
-  getDailyLeaderboard(date) {
+  getDailyLeaderboard() {
     // In a real app, this would fetch from server
     // For now, return mock data
     return [
@@ -411,9 +411,10 @@ class GameModeManager {
     switch (mode) {
       case 'survival':
         return this.survivalData.get(playerId) || null;
-      case 'daily':
+      case 'daily': {
         const today = new Date().toISOString().split('T')[0];
         return this.dailyChallenges.get(today) || null;
+      }
       default:
         return null;
     }

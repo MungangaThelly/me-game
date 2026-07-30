@@ -1,21 +1,9 @@
-const CACHE_NAME = 'memory-game-v1';
+const CACHE_NAME = 'memory-game-v2';
 const urlsToCache = [
   '/',
   '/index.html',
-  '/src/main.jsx',
-  '/src/App.jsx',
-  '/src/components/MemoryGame.jsx',
-  '/src/components/MemoryGame.css',
-  '/src/utils/soundEffects.js',
-  '/src/utils/animations.js',
-  '/src/utils/gameStats.js',
-  '/src/utils/customThemes.js',
-  '/src/utils/multiplayerManager.js',
-  '/src/utils/accessibilityManager.js',
-  '/src/utils/gameModes.js',
-  '/src/utils/mobileManager.js',
-  '/src/locales/en.json',
-  '/src/locales/sv.json'
+  '/manifest.json',
+  '/icon.svg'
 ];
 
 self.addEventListener('install', (event) => {
@@ -29,14 +17,25 @@ self.addEventListener('install', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
+  if (event.request.method !== 'GET') return;
+
   event.respondWith(
     caches.match(event.request)
       .then((response) => {
-        // Return cached version or fetch from network
-        if (response) {
-          return response;
-        }
-        return fetch(event.request);
+        if (response) return response;
+
+        return fetch(event.request)
+          .then((networkResponse) => {
+            if (networkResponse.ok && new URL(event.request.url).origin === self.location.origin) {
+              const copy = networkResponse.clone();
+              caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
+            }
+            return networkResponse;
+          })
+          .catch(() => {
+            if (event.request.mode === 'navigate') return caches.match('/index.html');
+            throw new Error('Resource unavailable offline');
+          });
       })
   );
 });

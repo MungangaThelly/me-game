@@ -8,6 +8,8 @@ import customThemeManager from "../utils/customThemes";
 import multiplayerManager from "../utils/multiplayerManager";
 import accessibilityManager from "../utils/accessibilityManager";
 import gameModeManager from "../utils/gameModes";
+import { areAllCardsMatched, createShuffledCards } from "../utils/gameLogic";
+import { MultiplayerScoreboard, ThemePreviewModal } from "./GamePanels";
 import mobileManager from "../utils/mobileManager";
 import "./MemoryGame.css";
 import "../i18n";
@@ -230,7 +232,7 @@ const MemoryGame = () => {
   const [currentMultiplayerRoom, setCurrentMultiplayerRoom] = useState(null);
   const [roomList, setRoomList] = useState([]);
   const [isSpectating, setIsSpectating] = useState(false);
-  const [playerProfile, setPlayerProfile] = useState(multiplayerManager.getPlayerInfo());
+  const [playerProfile] = useState(multiplayerManager.getPlayerInfo());
   const [onlinePlayers, setOnlinePlayers] = useState([]);
 
   // Accessibility Plus
@@ -241,15 +243,13 @@ const MemoryGame = () => {
   const [currentGameMode, setCurrentGameMode] = useState('classic');
   const [survivalState, setSurvivalState] = useState(null);
   const [dailyChallenge, setDailyChallenge] = useState(null);
-  const [puzzlePattern, setPuzzlePattern] = useState(null);
+  const [, setPuzzlePattern] = useState(null);
   const [blitzSettings, setBlitzSettings] = useState(null);
-  const [showGameModeModal, setShowGameModeModal] = useState(false);
   const [gameModePowerUps, setGameModePowerUps] = useState({
     timeFreeze: false,
     extraLife: false,
     revealHint: false
   });
-  const [gameModeTimer, setGameModeTimer] = useState(0);
   const [lives, setLives] = useState(3);
   
   const navigate = useNavigate();
@@ -298,23 +298,8 @@ const MemoryGame = () => {
   }, [customThemes]);
 
   // Shuffle cards function - now inside component to access themes
-  const shuffleCards = (difficulty, theme) => {
-    const selectedSymbols = themes[theme].slice(0, difficulty * 5);
-
-    let cardPairs = selectedSymbols
-      .flatMap(value => [
-        { id: Math.random(), value, isFlipped: false, isMatched: false },
-        { id: Math.random(), value, isFlipped: false, isMatched: false }
-      ])
-      .sort(() => Math.random() - 0.5);
-
-    return cardPairs.map((card, index) => ({
-      id: index,
-      value: card.value,
-      isFlipped: false,
-      isMatched: false
-    }));
-  };
+  const shuffleCards = (difficulty, theme) =>
+    createShuffledCards(themes[theme], difficulty);
   
   const themeGridRef = useRef(null);
   const controlsRef = useRef(null);
@@ -328,6 +313,8 @@ const MemoryGame = () => {
     if (gameContainerRef.current && !particleEffectRef.current) {
       particleEffectRef.current = new ParticleEffect(gameContainerRef.current);
     }
+  // shuffleCards is recreated when themes change; themes are already reflected by theme selection.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [difficulty, theme]);
 
   useEffect(() => {
@@ -338,6 +325,8 @@ const MemoryGame = () => {
       }, 1000);
     }
     return () => clearInterval(interval);
+  // cards drives allCardsMatched, so tracking cards also updates the timer state.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gameStarted, cards]);
 
   // Initialize mobile manager
@@ -404,9 +393,10 @@ const MemoryGame = () => {
     initMobile();
     
     // Cleanup on unmount
+    const gameContainer = gameContainerRef.current;
     return () => {
-      if (gameContainerRef.current) {
-        mobileManager.removeTouchGestures(gameContainerRef.current);
+      if (gameContainer) {
+        mobileManager.removeTouchGestures(gameContainer);
       }
     };
   }, [theme, difficulty]);
@@ -573,6 +563,8 @@ const MemoryGame = () => {
         setupSteps[setupStep]();
       }
     }
+  // This guided sequence intentionally advances only when its explicit step changes.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autoSetup, setupStep, i18n]);
 
   // Enhanced Multiplayer Event Listeners
@@ -591,6 +583,10 @@ const MemoryGame = () => {
       setCurrentMultiplayerRoom(room);
       setShowRoomBrowser(false);
       setShowMultiplayerMenu(false);
+    };
+
+    const handleRoomList = (rooms) => {
+      setRoomList(rooms);
     };
 
     const handlePlayerJoined = (player) => {
@@ -618,6 +614,7 @@ const MemoryGame = () => {
     multiplayerManager.on('connected', handleMultiplayerConnected);
     multiplayerManager.on('disconnected', handleMultiplayerDisconnected);
     multiplayerManager.on('roomJoined', handleRoomJoined);
+    multiplayerManager.on('roomList', handleRoomList);
     multiplayerManager.on('playerJoined', handlePlayerJoined);
     multiplayerManager.on('playerLeft', handlePlayerLeft);
     multiplayerManager.on('gameState', handleGameState);
@@ -627,6 +624,7 @@ const MemoryGame = () => {
       multiplayerManager.off('connected', handleMultiplayerConnected);
       multiplayerManager.off('disconnected', handleMultiplayerDisconnected);
       multiplayerManager.off('roomJoined', handleRoomJoined);
+      multiplayerManager.off('roomList', handleRoomList);
       multiplayerManager.off('playerJoined', handlePlayerJoined);
       multiplayerManager.off('playerLeft', handlePlayerLeft);
       multiplayerManager.off('gameState', handleGameState);
@@ -739,7 +737,7 @@ const MemoryGame = () => {
           } else {
             alert('Invalid theme file format');
           }
-        } catch (error) {
+        } catch {
           alert('Error reading theme file');
         }
       };
@@ -758,8 +756,8 @@ const MemoryGame = () => {
     if (confirm(`Delete theme "${customThemes[themeKey]?.name}"?`)) {
       customThemeManager.deleteTheme(themeKey);
       setCustomThemes(customThemeManager.getAllThemes());
-      if (selectedTheme === themeKey) {
-        setSelectedTheme('flowers'); // Reset to default theme
+      if (theme === themeKey) {
+        setTheme('flowers'); // Reset to default theme
       }
     }
   };
@@ -775,6 +773,7 @@ const MemoryGame = () => {
       // Use mock server for development
       await multiplayerManager.connectMockServer();
       setIsMultiplayerConnected(true);
+      multiplayerManager.getRoomList();
       playSound('gameComplete');
     } catch (error) {
       console.error('Failed to connect to multiplayer:', error);
@@ -824,12 +823,6 @@ const MemoryGame = () => {
     playSound('buttonClick');
   }, [playSound]);
 
-  const stopSpectating = useCallback(() => {
-    multiplayerManager.stopSpectating();
-    setIsSpectating(false);
-    playSound('buttonClick');
-  }, [playSound]);
-
   // Accessibility handlers
   const toggleAccessibilityMenu = useCallback(() => {
     setShowAccessibilityMenu(prev => !prev);
@@ -856,13 +849,13 @@ const MemoryGame = () => {
         }
       }
     });
+  // handleCardClick is declared below and reads the same game-state values tracked here.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cards, flippedCards, gameOver, gameStarted]);
 
   // Game Mode handlers
   const switchGameMode = useCallback((mode) => {
     setCurrentGameMode(mode);
-    const modeData = gameModeManager.getGameModes()[mode];
-    
     if (mode === 'survival') {
       const survival = gameModeManager.initializeSurvival('player1');
       setSurvivalState(survival);
@@ -881,9 +874,11 @@ const MemoryGame = () => {
     // Reset game state for new mode
     resetGame();
     soundManager.play('modeChange');
+  // resetGame is declared below; mode changes invoke it directly.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [difficulty]);
 
-  const usePowerUp = useCallback((powerUpType) => {
+  const handlePowerUp = useCallback((powerUpType) => {
     if (currentGameMode !== 'survival') return false;
     
     const success = gameModeManager.usePowerUp('player1', powerUpType);
@@ -904,7 +899,7 @@ const MemoryGame = () => {
         case 'extraLife':
           setLives(prev => prev + 1);
           break;
-        case 'revealHint':
+        case 'revealHint': {
           // Show first unmatched pair briefly
           const unmatched = cards.filter(card => !card.matched);
           if (unmatched.length >= 2) {
@@ -915,6 +910,7 @@ const MemoryGame = () => {
             }, 2000);
           }
           break;
+        }
       }
       
       soundManager.play('powerUp');
@@ -927,7 +923,7 @@ const MemoryGame = () => {
     let modeSpecificResult = { ...gameResult };
     
     switch (currentGameMode) {
-      case 'survival':
+      case 'survival': {
         const survivalResult = gameModeManager.updateSurvivalProgress('player1', gameResult);
         setSurvivalState(survivalResult);
         setLives(survivalResult.lives);
@@ -940,21 +936,24 @@ const MemoryGame = () => {
           }, 3000);
         }
         break;
+      }
         
-      case 'daily':
+      case 'daily': {
         const reward = gameModeManager.completeDailyChallenge(new Date(), gameResult);
         if (reward) {
           modeSpecificResult.reward = reward;
           soundManager.play('achievement');
         }
         break;
+      }
         
-      case 'timeAttack':
+      case 'timeAttack': {
         const timeAttackSettings = gameModeManager.getTimeAttackSettings(difficulty);
         if (gameResult.time <= timeAttackSettings.timeLimit && gameResult.won) {
           modeSpecificResult.speedBonus = Math.max(0, timeAttackSettings.timeLimit - gameResult.time) * 10;
         }
         break;
+      }
         
       case 'blitz':
         if (gameResult.won) {
@@ -968,6 +967,8 @@ const MemoryGame = () => {
     }
     
     return modeSpecificResult;
+  // resetGame is declared below and is intentionally invoked using current render state.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentGameMode, difficulty]);
 
   const handleCardClick = useCallback((id) => {
@@ -998,6 +999,8 @@ const MemoryGame = () => {
     if (flippedCards.length === 1) {
       checkForMatch(updatedCards, flippedCards[0], id);
     }
+  // checkForMatch is declared below and uses the same render snapshot as this click.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [flippedCards, gameStarted, gameOver, timeLimit, timer, cards]);
 
   const checkForMatch = (updatedCards, firstId, secondId) => {
@@ -1110,21 +1113,7 @@ const MemoryGame = () => {
   };
 
   // Memoized expensive calculations
-  const allCardsMatched = useMemo(() => 
-    cards.every(card => card.isMatched), 
-    [cards]
-  );
-
-  const gameProgress = useMemo(() => {
-    const totalCards = cards.length;
-    const matchedCards = cards.filter(card => card.isMatched).length;
-    return totalCards > 0 ? (matchedCards / totalCards) * 100 : 0;
-  }, [cards]);
-
-  const totalThemeCount = useMemo(() => 
-    Object.keys(builtInThemes).length + Object.keys(customThemes).length,
-    [customThemes]
-  );
+  const allCardsMatched = useMemo(() => areAllCardsMatched(cards), [cards]);
 
   // Performance-optimized functions with useCallback
   const changeDifficulty = useCallback((level) => {
@@ -1133,13 +1122,9 @@ const MemoryGame = () => {
     setCards(shuffleCards(level, theme));
     setGameStarted(true);
     resetGame();
+  // resetGame is declared below and intentionally resets the newly selected difficulty.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [theme, shuffleCards, playSound]);
-
-  const handleButtonClick = (element, callback) => {
-    soundManager.play('buttonClick');
-    animationUtils.buttonBounce(element);
-    callback();
-  };
 
   const changeMultiplayerMode = (mode) => {
     soundManager.play('buttonClick');
@@ -1237,6 +1222,8 @@ const MemoryGame = () => {
         localStorage.setItem("highScore", topScore);
       }
     }
+  // Completion helpers are declared in this component and use the same completed-game snapshot.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cards, players, gameOver, gameStarted, highScore, timer, totalMoves, difficulty, theme, currentGameMode, streak, perfectGame]);
 
   // Accessibility effects
@@ -1278,7 +1265,7 @@ const MemoryGame = () => {
         moves: totalMoves
       });
     }
-  }, [gameStarted, gameOver, players, difficulty]);
+  }, [gameStarted, gameOver, players, difficulty, theme, timer, totalMoves]);
 
   useEffect(() => {
     // Announce matches and score updates
@@ -1287,20 +1274,6 @@ const MemoryGame = () => {
       accessibilityManager.announce(`Score: ${activePlayer.score} points`);
     }
   }, [players, currentPlayer]);
-
-  const ThemePreviewModal = () => (
-    <div className="modal-overlay" onClick={() => setShowThemeModal(false)}>
-      <div className="theme-preview-modal" onClick={e => e.stopPropagation()}>
-        <h3>{t('themePreview')}</h3>
-        <div className="theme-preview-grid">
-          {themes[theme].slice(0, difficulty * 5).map((emoji, i) => (
-            <div key={i} className="preview-emoji">{emoji}</div>
-          ))}
-        </div>
-        <button onClick={() => setShowThemeModal(false)}>{t('close')}</button>
-      </div>
-    </div>
-  );
 
   const StatsModal = () => (
     <div className="modal-overlay" onClick={() => setShowStatsModal(false)}>
@@ -1508,17 +1481,6 @@ const MemoryGame = () => {
     </div>
   );
 
-  const MultiplayerScoreboard = () => (
-    <div className="scoreboard">
-      {players.map((player, i) => (
-        <div key={i} className={`player ${i === currentPlayer ? 'active' : ''}`}>
-          <span>{player.name}</span>
-          <span>{player.score}</span>
-        </div>
-      ))}
-    </div>
-  );
-
   return (
     <div className="memory-game" data-theme={theme} ref={gameContainerRef}>
       <h1>{t('Me-GaMe')}</h1>
@@ -1603,7 +1565,7 @@ const MemoryGame = () => {
                             <button
                               key={type}
                               className="power-up-button"
-                              onClick={() => usePowerUp(type)}
+                              onClick={() => handlePowerUp(type)}
                               disabled={gameModePowerUps[type]}
                             >
                               {type === 'timeFreeze' ? '❄️' : type === 'extraLife' ? '❤️' : '💡'} {count}
@@ -1785,7 +1747,9 @@ const MemoryGame = () => {
             </div>
           </div>
 
-          {multiplayerMode.players > 1 && <MultiplayerScoreboard />}
+          {multiplayerMode.players > 1 && (
+            <MultiplayerScoreboard players={players} currentPlayer={currentPlayer} />
+          )}
 
           <div className="game-info">
             <div className="game-stats">
@@ -1854,7 +1818,14 @@ const MemoryGame = () => {
         </>
       )}
 
-      {showThemeModal && <ThemePreviewModal />}
+      {showThemeModal && (
+        <ThemePreviewModal
+          difficulty={difficulty}
+          emojis={themes[theme]}
+          onClose={() => setShowThemeModal(false)}
+          t={t}
+        />
+      )}
       {showStatsModal && <StatsModal />}
       {showAccessibilityMenu && <AccessibilityModal />}
       
@@ -1971,15 +1942,27 @@ const MemoryGame = () => {
               <button onClick={() => setShowCreateRoom(false)} className="close-button">✕</button>
             </div>
             
-            <div className="room-settings">
+            <form
+              className="room-settings"
+              onSubmit={(event) => {
+                event.preventDefault();
+                const data = new FormData(event.currentTarget);
+                createMultiplayerRoom({
+                  name: data.get('roomName'),
+                  maxPlayers: Number(data.get('maxPlayers')),
+                  isPrivate: data.get('isPrivate') === 'on',
+                  allowSpectators: data.get('allowSpectators') === 'on'
+                });
+              }}
+            >
               <label>
                 Room Name:
-                <input type="text" placeholder="My Awesome Room" />
+                <input name="roomName" type="text" placeholder="My Awesome Room" required />
               </label>
               
               <label>
                 Max Players:
-                <select defaultValue="4">
+                <select name="maxPlayers" defaultValue="4">
                   <option value="2">2 Players</option>
                   <option value="3">3 Players</option>
                   <option value="4">4 Players</option>
@@ -1988,24 +1971,23 @@ const MemoryGame = () => {
               </label>
               
               <label>
-                <input type="checkbox" />
+                <input name="isPrivate" type="checkbox" />
                 Private Room
               </label>
               
               <label>
-                <input type="checkbox" defaultChecked />
+                <input name="allowSpectators" type="checkbox" defaultChecked />
                 Allow Spectators
               </label>
-            </div>
-            
-            <div className="room-actions">
+              <div className="room-actions">
               <button 
-                onClick={() => createMultiplayerRoom({ name: 'Test Room' })}
+                type="submit"
                 className="create-button"
               >
                 🎮 Create & Join Room
               </button>
-            </div>
+              </div>
+            </form>
           </div>
         </div>
       )}

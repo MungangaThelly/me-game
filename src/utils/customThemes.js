@@ -111,7 +111,7 @@ class CustomThemeManager {
         }
         return themeKey;
       }
-    } catch (error) {
+    } catch {
       throw new Error('Invalid theme data');
     }
   }

@@ -1,7 +1,7 @@
 {
   "name": "Memory Game Pro",
   "short_name": "MemoryGame",
-  "description": "A comprehensive memory card game with multiple modes, themes, and multiplayer support",
+  "description": "A memory card game with multiple local modes, themes, and offline support",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
@@ -30,7 +30,7 @@
     {
       "name": "Multiplayer",
       "short_name": "Multi",
-      "description": "Play with friends online",
+      "description": "Play with friends on the same device",
       "url": "/?mode=multiplayer",
       "icons": [{ "src": "/icon.svg", "sizes": "any" }]
     },

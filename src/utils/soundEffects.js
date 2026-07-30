@@ -34,7 +34,7 @@ class SoundManager {
       this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
       this.initialized = true;
       console.log('Audio context initialized after user interaction');
-    } catch (e) {
+    } catch {
       console.warn('Web Audio API not supported, falling back to HTML5 audio');
     }
   }
