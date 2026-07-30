@@ -46,3 +46,34 @@ test('iOS users can open manual installation instructions', async () => {
     /!this\.isStandalone && \(this\.isIOS \|\| this\.deferredPrompt !== null\)/
   );
 });
+
+test('the application shell contains no inline scripts', async () => {
+  const html = await readFile(
+    new URL('../index.html', import.meta.url),
+    'utf8'
+  );
+
+  assert.doesNotMatch(html, /<script(?![^>]*\bsrc=)[^>]*>/i);
+});
+
+test('the module entry point registers the service worker', async () => {
+  const main = await readFile(
+    new URL('../src/main.jsx', import.meta.url),
+    'utf8'
+  );
+
+  assert.match(main, /navigator\.serviceWorker\.register\('\/sw\.js'\)/);
+});
+
+test('Netlify applies baseline browser security headers', async () => {
+  const headers = await readFile(
+    new URL('../public/_headers', import.meta.url),
+    'utf8'
+  );
+
+  assert.match(headers, /Content-Security-Policy:/);
+  assert.match(headers, /script-src 'self'/);
+  assert.match(headers, /frame-ancestors 'none'/);
+  assert.match(headers, /X-Content-Type-Options: nosniff/);
+  assert.match(headers, /Permissions-Policy:/);
+});

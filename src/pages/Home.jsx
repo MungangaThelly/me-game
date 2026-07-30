@@ -1,6 +1,5 @@
 // src/pages/Home.jsx
 import React from 'react';
-import { Link } from 'react-router-dom';
 import './Home.css';
 
 function Home() {
@@ -12,9 +11,9 @@ function Home() {
       </div>
       
       <div className="game-cta">
-        <Link to="/memory-game" className="cta-button">
+        <a href="/memory-game" className="cta-button">
           Start Playing
-        </Link>
+        </a>
       </div>
 
       <div className="game-info">
