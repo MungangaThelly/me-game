@@ -36,3 +36,12 @@ test('numeric difficulties fall back to valid mode timing', () => {
   assert.equal(gameModeManager.getTimeAttackSettings(2).timeLimit, 90);
   assert.equal(gameModeManager.getBlitzSettings(2).timePerPair, 2.5);
 });
+
+test('puzzle sequences use the card value field', () => {
+  const sequence = gameModeManager.generatePuzzlePatterns().sequence.generator([
+    { value: 'b' },
+    { value: 'a' },
+    { value: 'a' }
+  ]);
+  assert.deepEqual(sequence.requiredOrder, ['a', 'b']);
+});

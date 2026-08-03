@@ -8,7 +8,7 @@ import multiplayerManager from "../utils/multiplayerManager";
 import accessibilityManager from "../utils/accessibilityManager";
 import gameModeManager from "../utils/gameModes";
 import { areAllCardsMatched, createShuffledCards } from "../utils/gameLogic";
-import { MultiplayerScoreboard, ThemePreviewModal } from "./GamePanels";
+import { ThemePreviewModal } from "./GamePanels";
 import mobileManager from "../utils/mobileManager";
 import "./MemoryGame.css";
 import "./ModernLayout.css";
@@ -176,13 +176,6 @@ const builtInThemes = {
 
 
 
-// Multiplayer modes
-const multiplayerModes = {
-  solo: { name: 'solo', players: 1 },
-  versus: { name: 'versus', players: 2 },
-  teams: { name: 'teams', players: 4 }
-};
-
 const MemoryGame = () => {
   const [cards, setCards] = useState([]);
   const [flippedCards, setFlippedCards] = useState([]);
@@ -190,12 +183,11 @@ const MemoryGame = () => {
   const [difficulty, setDifficulty] = useState(2);
   const [gameStarted, setGameStarted] = useState(false);
   const [gameOver, setGameOver] = useState(false);
+  const [timedOut, setTimedOut] = useState(false);
   const [highScore, setHighScore] = useState(localStorage.getItem("highScore") || 0);
   const [theme, setTheme] = useState('fruits');
   const [showThemeModal, setShowThemeModal] = useState(false);
-  const [multiplayerMode, setMultiplayerMode] = useState(multiplayerModes.solo);
   const [players, setPlayers] = useState([{ id: 1, name: 'Player 1', score: 0, active: true }]);
-  const [currentPlayer, setCurrentPlayer] = useState(0);
   const [setupStep, setSetupStep] = useState(0);
   const [autoSetup, setAutoSetup] = useState(false);
   const [highlightedSection, setHighlightedSection] = useState('');
@@ -310,7 +302,6 @@ const MemoryGame = () => {
   const controlsRef = useRef(null);
   const gameContainerRef = useRef(null);
   const particleEffectRef = useRef(null);
-  const playerSelectorRef = useRef(null);
   const themeSelectorRef = useRef(null);
   const difficultySelectorRef = useRef(null);
   const languageSelectorRef = useRef(null);
@@ -348,7 +339,7 @@ const MemoryGame = () => {
 
   useEffect(() => {
     let interval;
-    if (gameStarted && !allCardsMatched) {
+    if (gameStarted && !gameOver && !allCardsMatched) {
       interval = setInterval(() => {
         setTimer(prev => prev + 1);
       }, 1000);
@@ -356,7 +347,16 @@ const MemoryGame = () => {
     return () => clearInterval(interval);
   // cards drives allCardsMatched, so tracking cards also updates the timer state.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [gameStarted, cards]);
+  }, [gameStarted, gameOver, cards]);
+
+  useEffect(() => {
+    if (gameStarted && !gameOver && timeLimit > 0 && timer >= timeLimit) {
+      setTimedOut(true);
+      setGameOver(true);
+      soundManager.play('noMatch');
+      mobileManager.hapticFeedback('error');
+    }
+  }, [gameStarted, gameOver, timeLimit, timer]);
 
   // Initialize mobile manager
   useEffect(() => {
@@ -437,20 +437,11 @@ const MemoryGame = () => {
             }
           }, 300);
           
-          const modes = Object.values(multiplayerModes);
-          let currentModeIndex = 0;
-          
-          const modeInterval = setInterval(() => {
-            changeMultiplayerMode(modes[currentModeIndex]);
-            currentModeIndex++;
-            
-            if (currentModeIndex >= modes.length) {
-              clearInterval(modeInterval);
-              setHighlightedSection('');
-              setScrollIndicatorText('');
-              setTimeout(() => setSetupStep(1), 1200);
-            }
-          }, 1800);
+          setTimeout(() => {
+            setHighlightedSection('');
+            setScrollIndicatorText('');
+            setSetupStep(1);
+          }, 600);
         },
         
         // Step 1: Show all themes with scrolling
@@ -647,13 +638,13 @@ const MemoryGame = () => {
     };
   }, [currentMultiplayerRoom, isSpectating]);
 
-  const resetGame = () => {
-    setCards(shuffleCards(difficulty, theme));
+  const resetGame = (nextDifficulty = difficulty, nextMode = currentGameMode) => {
+    setCards(shuffleCards(nextDifficulty, theme));
     setFlippedCards([]);
     setPlayers(players.map(p => ({ ...p, score: 0 })));
-    setCurrentPlayer(0);
     setTimer(0);
     setGameOver(false);
+    setTimedOut(false);
     setGameStarted(true);
     
     // Reset progressive difficulty stats
@@ -663,14 +654,15 @@ const MemoryGame = () => {
     setTotalMoves(0);
     
     // Set time limit based on game mode and difficulty
-    if (currentGameMode === 'timeAttack') {
-      const timeLimits = { 1: 60, 2: 90, 3: 120 }; // Easy: 60s, Medium: 90s, Hard: 120s
-      setTimeLimit(timeLimits[difficulty]);
-    } else if (currentGameMode === 'blitz' && blitzSettings) {
-      setTimeLimit(cards.length * blitzSettings.timePerPair);
-    } else if (currentGameMode === 'survival' && survivalState) {
+    if (nextMode === 'timeAttack') {
+      const timeLimits = { 1: 120, 2: 90, 3: 60 };
+      setTimeLimit(timeLimits[nextDifficulty]);
+    } else if (nextMode === 'blitz') {
+      const settings = gameModeManager.getBlitzSettings(nextDifficulty);
+      setTimeLimit(nextDifficulty * 10 * settings.timePerPair);
+    } else if (nextMode === 'survival' && survivalState) {
       setTimeLimit(survivalState.timePerLevel);
-    } else if (currentGameMode === 'daily' && dailyChallenge) {
+    } else if (nextMode === 'daily' && dailyChallenge) {
       setTimeLimit(dailyChallenge.timeLimit || 0);
     } else {
       setTimeLimit(0); // No time limit for classic mode
@@ -888,9 +880,9 @@ const MemoryGame = () => {
     }
     
     // Reset game state for new mode
-    resetGame();
+    resetGame(difficulty, mode);
     soundManager.play('modeChange');
-    scrollToSection(playerSelectorRef);
+    scrollToSection(themeSelectorRef);
   // resetGame is declared below; mode changes invoke it directly.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [difficulty, scrollToSection]);
@@ -917,13 +909,24 @@ const MemoryGame = () => {
           setLives(prev => prev + 1);
           break;
         case 'revealHint': {
-          // Show first unmatched pair briefly
-          const unmatched = cards.filter(card => !card.matched);
-          if (unmatched.length >= 2) {
-            const pair = unmatched.slice(0, 2);
-            pair.forEach(card => card.isHint = true);
+          const unmatched = cards.filter(card => !card.isMatched);
+          const firstCard = unmatched.find((card, index) =>
+            unmatched.some((candidate, candidateIndex) =>
+              candidateIndex !== index && candidate.value === card.value
+            )
+          );
+          const pair = firstCard
+            ? unmatched.filter(card => card.value === firstCard.value).slice(0, 2)
+            : [];
+          if (pair.length === 2) {
+            const pairIds = new Set(pair.map(card => card.id));
+            setCards(currentCards => currentCards.map(card =>
+              pairIds.has(card.id) ? { ...card, isFlipped: true } : card
+            ));
             setTimeout(() => {
-              pair.forEach(card => card.isHint = false);
+              setCards(currentCards => currentCards.map(card =>
+                pairIds.has(card.id) && !card.isMatched ? { ...card, isFlipped: false } : card
+              ));
             }, 2000);
           }
           break;
@@ -948,8 +951,8 @@ const MemoryGame = () => {
         if (survivalResult.lives > 0 && gameResult.won) {
           // Continue to next level
           setTimeout(() => {
-            resetGame();
-            setDifficulty('medium'); // Adjust difficulty based on level
+            setDifficulty(2);
+            resetGame(2, 'survival');
           }, 3000);
         }
         break;
@@ -976,8 +979,9 @@ const MemoryGame = () => {
         if (gameResult.won) {
           // Continue with more cards
           setTimeout(() => {
-            setDifficulty(prev => prev === 'easy' ? 'medium' : prev === 'medium' ? 'hard' : 'hard');
-            resetGame();
+            const nextDifficulty = Math.min(3, difficulty + 1);
+            setDifficulty(nextDifficulty);
+            resetGame(nextDifficulty, 'blitz');
           }, 2000);
         }
         break;
@@ -1088,16 +1092,7 @@ const MemoryGame = () => {
         );
         setCards(newCards);
 
-        if (multiplayerMode.players > 1) {
-          const newPlayers = [...players];
-          newPlayers[currentPlayer].score += finalScore;
-          setPlayers(newPlayers);
-        } else {
-          // Single player scoring
-          const newPlayers = [...players];
-          newPlayers[0].score += finalScore;
-          setPlayers(newPlayers);
-        }
+        setPlayers(([player]) => [{ ...player, score: player.score + finalScore }]);
       } else {
         // Play no match sound and haptic feedback
         soundManager.play('noMatch');
@@ -1121,9 +1116,6 @@ const MemoryGame = () => {
           [firstId, secondId].includes(card.id) ? { ...card, isFlipped: false } : card
         ));
 
-        if (multiplayerMode.players > 1) {
-          setCurrentPlayer((currentPlayer + 1) % multiplayerMode.players);
-        }
       }
       setFlippedCards([]);
     }, isMatch ? 500 : 1000);
@@ -1136,30 +1128,11 @@ const MemoryGame = () => {
   const changeDifficulty = useCallback((level) => {
     playSound('buttonClick');
     setDifficulty(level);
-    setCards(shuffleCards(level, theme));
-    setGameStarted(true);
-    resetGame();
+    resetGame(level, currentGameMode);
     scrollToSection(languageSelectorRef);
   // resetGame is declared below and intentionally resets the newly selected difficulty.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [theme, shuffleCards, playSound, scrollToSection]);
-
-  const changeMultiplayerMode = (mode) => {
-    soundManager.play('buttonClick');
-    setMultiplayerMode(mode);
-    setPlayers(
-      Array(mode.players)
-        .fill()
-        .map((_, i) => ({
-          id: i + 1,
-          name: `${t('player')} ${i + 1}`,
-          score: 0,
-          active: i === 0
-        }))
-    );
-    resetGame();
-    scrollToSection(themeSelectorRef);
-  };
+  }, [currentGameMode, playSound, scrollToSection]);
 
   const toggleSound = useCallback(() => {
     const newSoundEnabled = !soundEnabled;
@@ -1282,11 +1255,8 @@ const MemoryGame = () => {
         theme: theme 
       });
     } else if (gameOver) {
-      const winner = players.length > 1 
-        ? players.reduce((max, p) => p.score > max.score ? p : max, players[0])
-        : players[0];
       accessibilityManager.announceGameEvent('gameWon', {
-        score: winner.score,
+        score: players[0].score,
         time: timer,
         moves: totalMoves
       });
@@ -1295,11 +1265,10 @@ const MemoryGame = () => {
 
   useEffect(() => {
     // Announce matches and score updates
-    if (players.length > 0 && players[currentPlayer] && players[currentPlayer].score > 0) {
-      const activePlayer = players[currentPlayer];
-      accessibilityManager.announce(`Score: ${activePlayer.score} points`);
+    if (players[0].score > 0) {
+      accessibilityManager.announce(`Score: ${players[0].score} points`);
     }
-  }, [players, currentPlayer]);
+  }, [players]);
 
   const StatsModal = () => (
     <div className="modal-overlay" onClick={() => setShowStatsModal(false)}>
@@ -1526,17 +1495,8 @@ const MemoryGame = () => {
       
       {gameOver ? (
         <div className="congratulations-screen">
-          <h2>{t('congratulations')}</h2>
-          {multiplayerMode.players > 1 ? (
-            <>
-              <h3>{t('finalScores')}</h3>
-              {players.map((player, i) => (
-                <p key={i}>{player.name}: {player.score}</p>
-              ))}
-            </>
-          ) : (
-            <p>{t('finalScore')}: {players[0].score}</p>
-          )}
+          <h2>{timedOut ? t('timeUp') : t('congratulations')}</h2>
+          <p>{t('finalScore')}: {players[0].score}</p>
           <p>{t('timeTaken')}: {timer}s</p>
           <p>{t('highScore')}: {highScore}</p>
           <div className="game-over-actions">
@@ -1621,22 +1581,6 @@ const MemoryGame = () => {
                   )}
                 </div>
               )}
-            </div>
-
-            <div
-              className={`mode-selector ${highlightedSection === 'mode-selector' ? 'auto-setup-highlight' : ''}`}
-              ref={playerSelectorRef}
-            >
-              <h4>{t('players')}</h4>
-              {Object.values(multiplayerModes).map(mode => (
-                <button
-                  key={mode.name}
-                  className={multiplayerMode.name === mode.name ? 'active' : ''}
-                  onClick={() => changeMultiplayerMode(mode)}
-                >
-                  {t(mode.name)}
-                </button>
-              ))}
             </div>
 
             <div
@@ -1778,10 +1722,6 @@ const MemoryGame = () => {
             </div>
           </div>
 
-          {multiplayerMode.players > 1 && (
-            <MultiplayerScoreboard players={players} currentPlayer={currentPlayer} />
-          )}
-
           <div className="game-info">
             <div className="game-stats">
               <p>
@@ -1792,16 +1732,12 @@ const MemoryGame = () => {
                   </span>
                 )}
               </p>
-              {multiplayerMode.players === 1 && (
-                <>
-                  <p>{t('score')}: {players[0].score}</p>
-                  {streak > 0 && <p className="streak">🔥 {t('streak')}: {streak}</p>}
-                  {scoreMultiplier > 1 && (
-                    <p className="multiplier">✨ {scoreMultiplier.toFixed(1)}x</p>
-                  )}
-                  <p>{t('moves')}: {Math.ceil(totalMoves / 2)}</p>
-                </>
+              <p>{t('score')}: {players[0].score}</p>
+              {streak > 0 && <p className="streak">🔥 {t('streak')}: {streak}</p>}
+              {scoreMultiplier > 1 && (
+                <p className="multiplier">✨ {scoreMultiplier.toFixed(1)}x</p>
               )}
+              <p>{t('moves')}: {Math.ceil(totalMoves / 2)}</p>
               <p>{t('highScore')}: {highScore}</p>
             </div>
 
@@ -1815,14 +1751,6 @@ const MemoryGame = () => {
                 onMouseEnter={() => soundManager.play('buttonHover')}
               >
                 📊 {t('statistics')}
-              </button>
-              
-              <button 
-                onClick={() => setShowMultiplayerMenu(true)} 
-                className={`multiplayer-button ${isMultiplayerConnected ? 'connected' : ''}`}
-                onMouseEnter={() => soundManager.play('buttonHover')}
-              >
-                🌐 {isMultiplayerConnected ? 'Online' : 'Multiplayer'}
               </button>
               
               <div

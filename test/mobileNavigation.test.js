@@ -8,7 +8,6 @@ test('manual setup selections advance to the next section', async () => {
     'utf8'
   );
 
-  assert.match(source, /scrollToSection\(playerSelectorRef\)/);
   assert.match(source, /scrollToSection\(themeSelectorRef\)/);
   assert.match(source, /scrollToSection\(difficultySelectorRef\)/);
   assert.match(source, /scrollToSection\(languageSelectorRef\)/);

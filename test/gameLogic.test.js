@@ -25,3 +25,8 @@ test('calculates match progress', () => {
   assert.equal(getGameProgress([]), 0);
   assert.equal(getGameProgress([{ isMatched: true }, { isMatched: false }]), 50);
 });
+
+test('falls back to medium difficulty for invalid values', () => {
+  const symbols = Array.from({ length: 10 }, (_, index) => String(index));
+  assert.equal(createShuffledCards(symbols, 'medium', () => 0.5).length, 20);
+});

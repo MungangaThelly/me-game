@@ -11,12 +11,13 @@
   --ui-success: #168a52;
   --ui-radius-sm: 10px;
   --ui-radius: 16px;
-  --ui-shadow: 0 12px 32px rgba(25, 34, 48, 0.08);
+  --ui-shadow: 0 18px 50px rgba(43, 45, 100, 0.1);
 }
 
 body {
   background:
-    radial-gradient(circle at 15% 0%, rgba(91, 91, 214, 0.09), transparent 34rem),
+    radial-gradient(circle at 12% 0%, rgba(91, 91, 214, 0.14), transparent 34rem),
+    radial-gradient(circle at 90% 18%, rgba(22, 138, 82, 0.07), transparent 28rem),
     var(--ui-bg);
   color: var(--ui-text);
 }
@@ -33,6 +34,9 @@ body {
   margin-bottom: 28px;
   font-size: clamp(2rem, 5vw, 3.25rem);
   letter-spacing: -0.045em;
+  background: linear-gradient(120deg, #222d3d 25%, var(--ui-primary) 100%);
+  background-clip: text;
+  color: transparent;
 }
 
 .game-controls {
@@ -57,6 +61,7 @@ body {
   border-radius: var(--ui-radius);
   background: var(--ui-surface);
   box-shadow: 0 4px 14px rgba(25, 34, 48, 0.05);
+  transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
 }
 
 .game-mode-card:hover {
@@ -75,6 +80,10 @@ body {
 .game-mode-card.active .mode-icon,
 .game-mode-card.active .feature-tag {
   color: #fff;
+}
+
+.game-mode-card.active .feature-tag {
+  background: rgba(255, 255, 255, 0.18);
 }
 
 .feature-tag {
@@ -136,7 +145,22 @@ body {
 .theme-btn span,
 .theme-btn div {
   color: #162033;
-  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.55);
+  text-shadow: none;
+}
+
+.theme-btn .theme-icon {
+  font-size: 1.55rem;
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.14));
+}
+
+.theme-btn .theme-name {
+  max-width: 100%;
+  padding: 3px 7px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.78);
+  font-size: 0.78rem;
+  font-weight: 650;
+  line-height: 1.15;
 }
 
 .theme-btn.active {
@@ -393,13 +417,14 @@ button:focus-visible,
   }
 
   .game-mode-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: 1fr;
   }
 
   .game-mode-card {
     width: 100%;
     max-width: 100%;
-    min-height: 132px;
+    min-height: 0;
+    padding-block: 16px;
   }
 
   .theme-grid {
