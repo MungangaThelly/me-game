@@ -17,16 +17,16 @@ class SoundManager {
     const initOnUserGesture = () => {
       if (!this.initialized) {
         this.initAudioContext();
-        // Remove listeners after first initialization
-        document.removeEventListener('click', initOnUserGesture);
-        document.removeEventListener('keydown', initOnUserGesture);
-        document.removeEventListener('touchstart', initOnUserGesture);
       }
+      // Capture runs before React handlers, so the first control press can play sound.
+      document.removeEventListener('click', initOnUserGesture, true);
+      document.removeEventListener('keydown', initOnUserGesture, true);
+      document.removeEventListener('touchstart', initOnUserGesture, true);
     };
     
-    document.addEventListener('click', initOnUserGesture);
-    document.addEventListener('keydown', initOnUserGesture);
-    document.addEventListener('touchstart', initOnUserGesture);
+    document.addEventListener('click', initOnUserGesture, true);
+    document.addEventListener('keydown', initOnUserGesture, true);
+    document.addEventListener('touchstart', initOnUserGesture, true);
   }
 
   initAudioContext() {
@@ -132,6 +132,38 @@ class SoundManager {
           { frequency: 554, duration: 0.1, type: 'sine' }
         ],
         delay: 30
+      });
+    };
+
+    this.sounds.modeChange = () => {
+      this.generateComplexSound({
+        notes: [
+          { frequency: 392, duration: 0.1, type: 'triangle' },
+          { frequency: 523, duration: 0.16, type: 'triangle' }
+        ],
+        delay: 45
+      });
+    };
+
+    this.sounds.powerUp = () => {
+      this.generateComplexSound({
+        notes: [
+          { frequency: 523, duration: 0.1, type: 'sine' },
+          { frequency: 659, duration: 0.12, type: 'sine' },
+          { frequency: 880, duration: 0.22, type: 'sine' }
+        ],
+        delay: 45
+      });
+    };
+
+    this.sounds.achievement = () => {
+      this.generateComplexSound({
+        notes: [
+          { frequency: 659, duration: 0.14, type: 'triangle' },
+          { frequency: 784, duration: 0.14, type: 'triangle' },
+          { frequency: 1047, duration: 0.32, type: 'sine' }
+        ],
+        delay: 70
       });
     };
   }
