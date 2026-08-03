@@ -177,7 +177,7 @@ class GameModeManager {
         description: 'Match pairs in a specific order',
         generator: (cards) => {
           // Create sequence where pairs must be matched in alphabetical order
-          const sortedPairs = [...new Set(cards.map(c => c.emoji))].sort();
+          const sortedPairs = [...new Set(cards.map(c => c.value))].sort();
           return { requiredOrder: sortedPairs };
         }
       },

@@ -9,7 +9,7 @@ The French dashboard is titled **Le Royaume des Enfants**.
 ## Features
 
 - Classic, time attack, survival, puzzle, daily, and blitz game modes
-- Solo, two-player versus, and four-player team play on the same device
+- Focused single-player gameplay
 - 16 built-in emoji themes plus user-created themes
 - English, Swedish, and French interfaces
 - Guided setup scrolling from game mode through language to the game board
@@ -17,11 +17,6 @@ The French dashboard is titled **Le Royaume des Enfants**.
 - Keyboard, touch, sound, vibration, and accessibility preferences
 - Installable PWA with offline shell and runtime asset caching
 - iOS **Add to Home Screen** guidance
-- Mock multiplayer room flows for interface demonstrations
-
-Production-ready online rooms, tournaments, global leaderboards, and
-cross-device synchronization require a separate WebSocket/backend service and
-are not included in this repository.
 
 ## Development
 
@@ -69,7 +64,7 @@ in the browser with `localStorage`; they are not uploaded to a server.
 Each manual selection scrolls to the next core setup section:
 
 ```text
-Game mode → Players → Theme → Difficulty → Language → Game board
+Game mode → Theme → Difficulty → Language → Game board
 ```
 
 The scrolling respects reduced-motion preferences and does not prevent native

@@ -1,5 +1,6 @@
 export function createShuffledCards(symbols, difficulty, random = Math.random) {
-  const pairCount = Math.max(1, Number(difficulty)) * 5;
+  const normalizedDifficulty = Number(difficulty);
+  const pairCount = (Number.isFinite(normalizedDifficulty) ? Math.max(1, normalizedDifficulty) : 2) * 5;
   const selectedSymbols = symbols.slice(0, pairCount);
   const cards = selectedSymbols.flatMap((value) => [
     { value, isFlipped: false, isMatched: false },
