@@ -136,5 +136,16 @@
   "changeSetup": "Modifier la partie",
   "ready": "À vos marques…",
   "set": "Prêt…",
-  "remember": "Mémorisez !"
+  "remember": "Mémorisez !",
+  "roundComplete": "Partie terminée",
+  "memoryMastered": "Mémoire maîtrisée",
+  "newPersonalBest": "Nouveau record personnel !",
+  "performanceGrade": "Note de performance",
+  "grade": "Note",
+  "points": "Points",
+  "accuracy": "Précision",
+  "sameSetup": "Rejouer",
+  "playHarder": "Niveau supérieur",
+  "shareResult": "Partager",
+  "shareResultText": "J'ai obtenu {{score}} points, la note {{grade}}, en {{time}}s et {{moves}} coups !"
 }

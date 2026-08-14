@@ -125,6 +125,25 @@ html {
   .progress-fill, .card { transition-duration: .01ms; }
 }
 
+.congratulations-screen { position: relative; overflow: hidden; width: min(100%, 680px); margin: 24px auto; padding: clamp(28px, 6vw, 54px); border: 1px solid rgba(255,255,255,.8); border-radius: 32px; background: linear-gradient(145deg, rgba(255,255,255,.96), rgba(242,239,255,.94)); box-shadow: 0 28px 80px rgba(52,38,130,.2); }
+.victory-kicker { color: #6a55da !important; font-size: .78rem; font-weight: 900; letter-spacing: .14em; text-transform: uppercase; }
+.victory-burst { position: absolute; right: -35px; top: -70px; color: rgba(118,89,248,.1) !important; font-size: 13rem; transform: rotate(18deg); }
+.personal-best { display: inline-block; margin: 6px 0 16px; padding: 8px 14px; border-radius: 999px; background: #fff1b8; color: #795600 !important; font-weight: 800; animation: matchBounce .7s ease-out; }
+.grade-ring { display: grid; place-content: center; width: 126px; height: 126px; margin: 18px auto; border: 9px solid #7659f8; border-radius: 50%; background: #fff; box-shadow: 0 10px 30px rgba(118,89,248,.25), inset 0 0 0 5px #ece8ff; }
+.grade-ring span { color: #4e36c7 !important; font-size: 3.8rem; font-weight: 950; line-height: .85; }
+.grade-ring small { color: #756c91; font-size: .7rem; font-weight: 800; text-transform: uppercase; }
+.result-score { display: grid; margin-bottom: 22px; }
+.result-score strong { color: #21194e; font-size: 2.2rem; line-height: 1; }
+.result-score span { color: #756c91 !important; font-size: .78rem; text-transform: uppercase; }
+.score-breakdown { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 20px 0 28px; }
+.score-breakdown > div { display: grid; gap: 3px; padding: 14px 8px; border-radius: 16px; background: rgba(255,255,255,.78); box-shadow: 0 5px 16px rgba(52,38,130,.07); }
+.score-breakdown strong { color: #29204e; font-size: 1.1rem; }
+.score-breakdown small { color: #756c91; font-size: .7rem; }
+.game-over-actions { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; }
+.game-over-actions button { padding: 11px 17px; border: 1px solid #d9d2f5; border-radius: 12px; background: #fff; color: #4e36c7; font-weight: 800; cursor: pointer; }
+.game-over-actions .replay-primary { border: 0; background: linear-gradient(135deg, #7659f8, #ff5fa2); color: #fff; box-shadow: 0 9px 22px rgba(118,89,248,.25); }
+@media (max-width: 560px) { .score-breakdown { grid-template-columns: repeat(2, 1fr); } }
+
 /* Theme-specific Card Backs */
 [data-theme="fruits"] .card-back { background-color: #FFEBEE; }
 [data-theme="vegetables"] .card-back { background-color: #F1F8E9; }
