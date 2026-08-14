@@ -1519,7 +1519,13 @@ const MemoryGame = () => {
         </div>
       ) : (
         <>
-          <div className="game-controls" ref={controlsRef}>
+          {!gameStarted && (
+          <section className="game-controls pre-game-panel" ref={controlsRef} aria-labelledby="setup-title">
+            <div className="setup-hero">
+              <span className="setup-kicker">{t('readyToPlay')}</span>
+              <h2 id="setup-title">{t('chooseYourGame')}</h2>
+              <p>{t('setupHint')}</p>
+            </div>
             <div className="game-mode-selector">
               <h4>{t('gameMode')}</h4>
               <div className="game-mode-grid">
@@ -1733,8 +1739,21 @@ const MemoryGame = () => {
                 ♿ {t('accessibilitySettings')}
               </button>
             </div>
-          </div>
+            <div className="launch-game-bar">
+              <div className="launch-summary">
+                <span>{themeMeta[theme]?.icon} {t(theme)}</span><span>•</span>
+                <span>{t(currentGameMode)}</span><span>•</span>
+                <span>{t(difficulty === 1 ? 'easy' : difficulty === 2 ? 'medium' : 'hard')}</span>
+              </div>
+              <button className="launch-game-button" onClick={startGame}>
+                {t('startGame')} <span aria-hidden="true">→</span>
+              </button>
+            </div>
+          </section>
+          )}
 
+          {gameStarted && (
+          <>
           <div className="game-info">
             <div className="game-stats">
               <p>
@@ -1755,6 +1774,9 @@ const MemoryGame = () => {
             </div>
 
             <div className="action-buttons">
+              <button onClick={() => setGameStarted(false)} className="setup-button">
+                {t('changeSetup')}
+              </button>
               <button onClick={resetGame} className="reset-button">
                 {t('reset')}
               </button>
@@ -1809,6 +1831,8 @@ const MemoryGame = () => {
               <span>{streak >= 3 ? '🔥' : '✨'}</span>
               <div><strong>{matchFeedback.title}</strong><small>{matchFeedback.detail}</small></div>
             </div>
+          )}
+          </>
           )}
         </>
       )}

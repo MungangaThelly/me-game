@@ -128,5 +128,10 @@
   "syncingData": "Syncing Data...",
   "mobileOptimized": "Mobile Optimized",
   "touchGestures": "Touch Gestures Enabled",
-  "hapticFeedback": "Haptic Feedback"
+  "hapticFeedback": "Haptic Feedback",
+  "readyToPlay": "Ready to play?",
+  "chooseYourGame": "Build your perfect round",
+  "setupHint": "Pick a mode, theme, and difficulty. You can change everything between rounds.",
+  "startGame": "Start game",
+  "changeSetup": "Change setup"
 }
