@@ -156,5 +156,8 @@
   "questSpeed": "Win in under 60 seconds",
   "questPerfect": "Win without a mistake",
   "questWins": "Win 5 rounds this week",
-  "questWeeklyMatches": "Find 30 pairs this week"
+  "questWeeklyMatches": "Find 30 pairs this week",
+  "resultCopied": "Result copied to clipboard.",
+  "shareUnavailable": "Sharing is unavailable on this device.",
+  "shareFailed": "The result could not be shared."
 }

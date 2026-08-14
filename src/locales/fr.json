@@ -156,5 +156,8 @@
   "questSpeed": "Gagnez en moins de 60 secondes",
   "questPerfect": "Gagnez sans erreur",
   "questWins": "Gagnez 5 parties cette semaine",
-  "questWeeklyMatches": "Trouvez 30 paires cette semaine"
+  "questWeeklyMatches": "Trouvez 30 paires cette semaine",
+  "resultCopied": "Résultat copié dans le presse-papiers.",
+  "shareUnavailable": "Le partage n'est pas disponible sur cet appareil.",
+  "shareFailed": "Le résultat n'a pas pu être partagé."
 }
