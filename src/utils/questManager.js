@@ -14,12 +14,15 @@ const dayKey = (date = new Date()) => date.toISOString().slice(0, 10);
 const weekKey = (date = new Date()) => `${date.getUTCFullYear()}-W${Math.ceil((((date - new Date(Date.UTC(date.getUTCFullYear(), 0, 1))) / 86400000) + 1) / 7)}`;
 const hash = value => [...value].reduce((total, char) => ((total * 31) + char.charCodeAt(0)) >>> 0, 7);
 
-class QuestManager {
+export class QuestManager {
   load() {
     try { return JSON.parse(storage()?.getItem(STORAGE_KEY)) || { stars: 0, progress: {} }; }
     catch { return { stars: 0, progress: {} }; }
   }
-  save(data) { storage()?.setItem(STORAGE_KEY, JSON.stringify(data)); }
+  save(data) {
+    try { storage()?.setItem(STORAGE_KEY, JSON.stringify(data)); return true; }
+    catch { return false; }
+  }
   getActiveQuests(date = new Date()) {
     const day = dayKey(date); const week = weekKey(date); const start = hash(day) % DAILY_POOL.length;
     return [DAILY_POOL[start], DAILY_POOL[(start + 1) % DAILY_POOL.length]].map(q => ({ ...q, key: `daily:${day}:${q.id}`, cadence: 'daily' }))

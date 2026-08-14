@@ -8,7 +8,7 @@ import multiplayerManager from "../utils/multiplayerManager";
 import accessibilityManager from "../utils/accessibilityManager";
 import gameModeManager from "../utils/gameModes";
 import questManager from "../utils/questManager";
-import { areAllCardsMatched, createShuffledCards } from "../utils/gameLogic";
+import { areAllCardsMatched, calculatePerformance, createShuffledCards, getPreviewDuration } from "../utils/gameLogic";
 import { ThemePreviewModal } from "./GamePanels";
 import mobileManager from "../utils/mobileManager";
 import "./MemoryGame.css";
@@ -210,6 +210,7 @@ const MemoryGame = () => {
   const [isPersonalBest, setIsPersonalBest] = useState(false);
   const [questSnapshot, setQuestSnapshot] = useState(() => questManager.getSnapshot());
   const [questUnlocked, setQuestUnlocked] = useState(null);
+  const [shareStatus, setShareStatus] = useState('');
   const feedbackTimerRef = useRef(null);
   // Removed old gameMode state - now using currentGameMode
   
@@ -664,7 +665,7 @@ const MemoryGame = () => {
   }, [currentMultiplayerRoom, isSpectating]);
 
   const resetGame = (nextDifficulty = difficulty, nextMode = currentGameMode) => {
-    const roundPreviewDuration = { 1: 4, 2: 3, 3: 2 }[nextDifficulty] || 3;
+    const roundPreviewDuration = getPreviewDuration(nextDifficulty);
     setCards(shuffleCards(nextDifficulty, theme));
     setFlippedCards([]);
     setPlayers(players.map(p => ({ ...p, score: 0 })));
@@ -673,6 +674,7 @@ const MemoryGame = () => {
     setTimedOut(false);
     setGameStarted(true);
     setIsPersonalBest(false);
+    setShareStatus('');
     setPreviewDuration(roundPreviewDuration);
     setPreviewCountdown(roundPreviewDuration);
     setPreviewActive(true);
@@ -1165,13 +1167,8 @@ const MemoryGame = () => {
   const matchedPairs = useMemo(() => cards.filter(card => card.isMatched).length / 2, [cards]);
   const totalPairs = cards.length / 2;
   const progress = totalPairs ? Math.round((matchedPairs / totalPairs) * 100) : 0;
-  const completedMoves = Math.max(1, Math.ceil(totalMoves / 2));
-  const accuracy = Math.min(100, Math.round((totalPairs / completedMoves) * 100));
-  const performanceScore = Math.min(100,
-    Math.round(accuracy * 0.55 + Math.min(streak, totalPairs) / Math.max(1, totalPairs) * 20 +
-      Math.max(0, 20 - timer / Math.max(1, totalPairs)) + difficulty * 2)
-  );
-  const performanceGrade = performanceScore >= 90 ? 'S' : performanceScore >= 78 ? 'A' : performanceScore >= 64 ? 'B' : 'C';
+  const performance = calculatePerformance({ totalPairs, totalMoves, streak, timer, difficulty });
+  const { moves: completedMoves, accuracy, grade: performanceGrade } = performance;
 
   const shareResult = async () => {
     const result = t('shareResultText', {
@@ -1180,10 +1177,17 @@ const MemoryGame = () => {
       time: timer,
       moves: completedMoves
     });
-    if (navigator.share) {
-      await navigator.share({ title: t('gameTitle'), text: result, url: window.location.origin });
-    } else if (navigator.clipboard) {
-      await navigator.clipboard.writeText(`${result} ${window.location.origin}`);
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: t('gameTitle'), text: result, url: window.location.origin });
+      } else if (navigator.clipboard) {
+        await navigator.clipboard.writeText(`${result} ${window.location.origin}`);
+        setShareStatus(t('resultCopied'));
+      } else {
+        setShareStatus(t('shareUnavailable'));
+      }
+    } catch (error) {
+      if (error?.name !== 'AbortError') setShareStatus(t('shareFailed'));
     }
   };
 
@@ -1597,6 +1601,7 @@ const MemoryGame = () => {
             <button onClick={shareResult}>{t('shareResult')}</button>
             <button onClick={() => setGameStarted(false)}>{t('changeSetup')}</button>
           </div>
+          {shareStatus && <p className="share-status" role="status">{shareStatus}</p>}
         </div>
       ) : (
         <>

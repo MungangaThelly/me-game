@@ -156,5 +156,8 @@
   "questSpeed": "Vinn på under 60 sekunder",
   "questPerfect": "Vinn utan misstag",
   "questWins": "Vinn 5 omgångar denna vecka",
-  "questWeeklyMatches": "Hitta 30 par denna vecka"
+  "questWeeklyMatches": "Hitta 30 par denna vecka",
+  "resultCopied": "Resultatet kopierades.",
+  "shareUnavailable": "Delning är inte tillgänglig på den här enheten.",
+  "shareFailed": "Resultatet kunde inte delas."
 }

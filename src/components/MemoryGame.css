@@ -142,6 +142,7 @@ html {
 .game-over-actions { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; }
 .game-over-actions button { padding: 11px 17px; border: 1px solid #d9d2f5; border-radius: 12px; background: #fff; color: #4e36c7; font-weight: 800; cursor: pointer; }
 .game-over-actions .replay-primary { border: 0; background: linear-gradient(135deg, #7659f8, #ff5fa2); color: #fff; box-shadow: 0 9px 22px rgba(118,89,248,.25); }
+.share-status { margin: 14px 0 0; color: #4e36c7 !important; font-size: .85rem; font-weight: 700; }
 @media (max-width: 560px) { .score-breakdown { grid-template-columns: repeat(2, 1fr); } }
 
 .quest-strip { margin: 10px 0 14px; padding: 12px; border-radius: 18px; background: rgba(35,27,75,.92); box-shadow: 0 12px 30px rgba(35,27,75,.16); }
