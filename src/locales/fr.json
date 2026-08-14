@@ -147,5 +147,14 @@
   "sameSetup": "Rejouer",
   "playHarder": "Niveau supérieur",
   "shareResult": "Partager",
-  "shareResultText": "J'ai obtenu {{score}} points, la note {{grade}}, en {{time}}s et {{moves}} coups !"
+  "shareResultText": "J'ai obtenu {{score}} points, la note {{grade}}, en {{time}}s et {{moves}} coups !",
+  "activeQuests": "Quêtes actives",
+  "questComplete": "Quête terminée !",
+  "questProgress": "Récompenses de quête",
+  "questMatches": "Trouvez 8 paires",
+  "questStreak": "Atteignez une série de 3",
+  "questSpeed": "Gagnez en moins de 60 secondes",
+  "questPerfect": "Gagnez sans erreur",
+  "questWins": "Gagnez 5 parties cette semaine",
+  "questWeeklyMatches": "Trouvez 30 paires cette semaine"
 }

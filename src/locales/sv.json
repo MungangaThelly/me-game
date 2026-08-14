@@ -147,5 +147,14 @@
   "sameSetup": "Spela igen",
   "playHarder": "Spela svårare",
   "shareResult": "Dela resultat",
-  "shareResultText": "Jag fick {{score}} poäng med betyget {{grade}} på {{time}}s och {{moves}} drag!"
+  "shareResultText": "Jag fick {{score}} poäng med betyget {{grade}} på {{time}}s och {{moves}} drag!",
+  "activeQuests": "Aktiva uppdrag",
+  "questComplete": "Uppdrag slutfört!",
+  "questProgress": "Uppdragsbelöningar",
+  "questMatches": "Hitta 8 par",
+  "questStreak": "Nå en svit på 3 par",
+  "questSpeed": "Vinn på under 60 sekunder",
+  "questPerfect": "Vinn utan misstag",
+  "questWins": "Vinn 5 omgångar denna vecka",
+  "questWeeklyMatches": "Hitta 30 par denna vecka"
 }

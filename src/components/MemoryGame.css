@@ -144,6 +144,24 @@ html {
 .game-over-actions .replay-primary { border: 0; background: linear-gradient(135deg, #7659f8, #ff5fa2); color: #fff; box-shadow: 0 9px 22px rgba(118,89,248,.25); }
 @media (max-width: 560px) { .score-breakdown { grid-template-columns: repeat(2, 1fr); } }
 
+.quest-strip { margin: 10px 0 14px; padding: 12px; border-radius: 18px; background: rgba(35,27,75,.92); box-shadow: 0 12px 30px rgba(35,27,75,.16); }
+.quest-strip-heading { display: flex; justify-content: space-between; margin: 0 4px 9px; }
+.quest-strip-heading strong, .quest-strip-heading span { color: #fff !important; }
+.quest-list { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.quest-item { position: relative; overflow: hidden; display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 8px; padding: 10px; border-radius: 12px; background: rgba(255,255,255,.1); text-align: left; }
+.quest-item span, .quest-item strong { color: #fff !important; }
+.quest-item small { display: block; color: #cfc7f7; font-size: .7rem; }
+.quest-item i { position: absolute; left: 0; bottom: 0; width: var(--quest-progress); height: 3px; background: linear-gradient(90deg, #ffcf5c, #ff6b9d); transition: width .4s ease; }
+.quest-item.completed { background: rgba(53,205,137,.2); }
+.quest-unlock { position: fixed; right: 22px; top: 22px; z-index: 1600; display: flex; align-items: center; gap: 10px; padding: 14px 18px; border-radius: 16px; background: #241b4f; box-shadow: 0 16px 48px rgba(35,27,75,.35); animation: feedbackPop 2.6s ease both; }
+.quest-unlock > span { font-size: 2rem; }
+.quest-unlock strong, .quest-unlock small { display: block; color: #fff; text-align: left; }
+.quest-unlock small { color: #ddd5ff; }
+.result-quests { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; margin: -10px 0 24px; }
+.result-quests > strong { width: 100%; }
+.result-quest-badge, .result-quests > span { padding: 6px 10px; border-radius: 999px; background: #eeeaff; color: #4e36c7 !important; font-size: .76rem; font-weight: 800; }
+@media (max-width: 700px) { .quest-list { grid-template-columns: 1fr; } .quest-unlock { left: 16px; right: 16px; } }
+
 /* Theme-specific Card Backs */
 [data-theme="fruits"] .card-back { background-color: #FFEBEE; }
 [data-theme="vegetables"] .card-back { background-color: #F1F8E9; }
