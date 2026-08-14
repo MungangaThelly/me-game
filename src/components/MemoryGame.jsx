@@ -911,12 +911,8 @@ const MemoryGame = () => {
       setBlitzSettings(settings);
     }
     
-    // Reset game state for new mode
-    resetGame(difficulty, mode);
     soundManager.play('modeChange');
     scrollToSection(themeSelectorRef);
-  // resetGame is declared below; mode changes invoke it directly.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [difficulty, scrollToSection]);
 
   const handlePowerUp = useCallback((powerUpType) => {
@@ -1204,11 +1200,8 @@ const MemoryGame = () => {
   const changeDifficulty = useCallback((level) => {
     playSound('buttonClick');
     setDifficulty(level);
-    resetGame(level, currentGameMode);
     scrollToSection(languageSelectorRef);
-  // resetGame is declared below and intentionally resets the newly selected difficulty.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentGameMode, playSound, scrollToSection]);
+  }, [playSound, scrollToSection]);
 
   const toggleSound = useCallback(() => {
     const newSoundEnabled = !soundEnabled;
