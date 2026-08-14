@@ -133,5 +133,8 @@
   "chooseYourGame": "Skapa din perfekta omgång",
   "setupHint": "Välj spelläge, tema och svårighetsgrad. Du kan ändra allt mellan omgångarna.",
   "startGame": "Starta spelet",
-  "changeSetup": "Ändra inställningar"
+  "changeSetup": "Ändra inställningar",
+  "ready": "Klara…",
+  "set": "Färdiga…",
+  "remember": "Kom ihåg!"
 }

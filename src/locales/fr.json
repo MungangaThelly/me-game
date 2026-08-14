@@ -133,5 +133,8 @@
   "chooseYourGame": "Créez votre partie idéale",
   "setupHint": "Choisissez un mode, un thème et une difficulté. Vous pourrez tout modifier entre les parties.",
   "startGame": "Commencer",
-  "changeSetup": "Modifier la partie"
+  "changeSetup": "Modifier la partie",
+  "ready": "À vos marques…",
+  "set": "Prêt…",
+  "remember": "Mémorisez !"
 }
