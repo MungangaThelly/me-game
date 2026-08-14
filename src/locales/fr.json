@@ -128,5 +128,10 @@
   "syncingData": "Synchronisation des données…",
   "mobileOptimized": "Optimisé pour mobile",
   "touchGestures": "Gestes tactiles activés",
-  "hapticFeedback": "Retour haptique"
+  "hapticFeedback": "Retour haptique",
+  "readyToPlay": "Prêt à jouer ?",
+  "chooseYourGame": "Créez votre partie idéale",
+  "setupHint": "Choisissez un mode, un thème et une difficulté. Vous pourrez tout modifier entre les parties.",
+  "startGame": "Commencer",
+  "changeSetup": "Modifier la partie"
 }

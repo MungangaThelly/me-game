@@ -128,5 +128,10 @@
   "syncingData": "Synkroniserar Data...",
   "mobileOptimized": "Mobiloptimerad",
   "touchGestures": "Touchgester Aktiverade", 
-  "hapticFeedback": "Haptisk Återkoppling"
+  "hapticFeedback": "Haptisk Återkoppling",
+  "readyToPlay": "Redo att spela?",
+  "chooseYourGame": "Skapa din perfekta omgång",
+  "setupHint": "Välj spelläge, tema och svårighetsgrad. Du kan ändra allt mellan omgångarna.",
+  "startGame": "Starta spelet",
+  "changeSetup": "Ändra inställningar"
 }
