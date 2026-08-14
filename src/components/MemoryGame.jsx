@@ -206,6 +206,7 @@ const MemoryGame = () => {
   const [previewActive, setPreviewActive] = useState(false);
   const [previewCountdown, setPreviewCountdown] = useState(0);
   const [previewDuration, setPreviewDuration] = useState(3);
+  const [isPersonalBest, setIsPersonalBest] = useState(false);
   const feedbackTimerRef = useRef(null);
   // Removed old gameMode state - now using currentGameMode
   
@@ -668,6 +669,7 @@ const MemoryGame = () => {
     setGameOver(false);
     setTimedOut(false);
     setGameStarted(true);
+    setIsPersonalBest(false);
     setPreviewDuration(roundPreviewDuration);
     setPreviewCountdown(roundPreviewDuration);
     setPreviewActive(true);
@@ -1158,6 +1160,27 @@ const MemoryGame = () => {
   const matchedPairs = useMemo(() => cards.filter(card => card.isMatched).length / 2, [cards]);
   const totalPairs = cards.length / 2;
   const progress = totalPairs ? Math.round((matchedPairs / totalPairs) * 100) : 0;
+  const completedMoves = Math.max(1, Math.ceil(totalMoves / 2));
+  const accuracy = Math.min(100, Math.round((totalPairs / completedMoves) * 100));
+  const performanceScore = Math.min(100,
+    Math.round(accuracy * 0.55 + Math.min(streak, totalPairs) / Math.max(1, totalPairs) * 20 +
+      Math.max(0, 20 - timer / Math.max(1, totalPairs)) + difficulty * 2)
+  );
+  const performanceGrade = performanceScore >= 90 ? 'S' : performanceScore >= 78 ? 'A' : performanceScore >= 64 ? 'B' : 'C';
+
+  const shareResult = async () => {
+    const result = t('shareResultText', {
+      score: players[0].score,
+      grade: performanceGrade,
+      time: timer,
+      moves: completedMoves
+    });
+    if (navigator.share) {
+      await navigator.share({ title: t('gameTitle'), text: result, url: window.location.origin });
+    } else if (navigator.clipboard) {
+      await navigator.clipboard.writeText(`${result} ${window.location.origin}`);
+    }
+  };
 
   // Performance-optimized functions with useCallback
   const changeDifficulty = useCallback((level) => {
@@ -1252,6 +1275,7 @@ const MemoryGame = () => {
       setGameOver(true);
       const topScore = Math.max(...players.map(p => p.score), highScore);
       if (topScore > highScore) {
+        setIsPersonalBest(true);
         setHighScore(topScore);
         localStorage.setItem("highScore", topScore);
       }
@@ -1529,14 +1553,26 @@ const MemoryGame = () => {
       )}
       
       {gameOver ? (
-        <div className="congratulations-screen">
+        <div className={`congratulations-screen grade-${performanceGrade.toLowerCase()}`}>
+          <div className="victory-burst" aria-hidden="true">✦</div>
+          <span className="victory-kicker">{timedOut ? t('roundComplete') : t('memoryMastered')}</span>
           <h2>{timedOut ? t('timeUp') : t('congratulations')}</h2>
-          <p>{t('finalScore')}: {players[0].score}</p>
-          <p>{t('timeTaken')}: {timer}s</p>
-          <p>{t('highScore')}: {highScore}</p>
+          {isPersonalBest && <div className="personal-best">🏆 {t('newPersonalBest')}</div>}
+          <div className="grade-ring" aria-label={`${t('performanceGrade')} ${performanceGrade}`}>
+            <span>{performanceGrade}</span><small>{t('grade')}</small>
+          </div>
+          <div className="result-score"><strong>{players[0].score}</strong><span>{t('points')}</span></div>
+          <div className="score-breakdown">
+            <div><span>🎯</span><strong>{accuracy}%</strong><small>{t('accuracy')}</small></div>
+            <div><span>⚡</span><strong>{timer}s</strong><small>{t('timeTaken')}</small></div>
+            <div><span>🃏</span><strong>{completedMoves}</strong><small>{t('moves')}</small></div>
+            <div><span>🔥</span><strong>{streak}</strong><small>{t('bestStreak')}</small></div>
+          </div>
           <div className="game-over-actions">
-            <button onClick={resetGame}>{t('playAgain')}</button>
-            <button onClick={() => window.location.assign('/')}>{t('returnHome')}</button>
+            <button className="replay-primary" onClick={() => resetGame()}>{t('sameSetup')}</button>
+            {difficulty < 3 && <button onClick={() => { const next = difficulty + 1; setDifficulty(next); resetGame(next); }}>{t('playHarder')}</button>}
+            <button onClick={shareResult}>{t('shareResult')}</button>
+            <button onClick={() => setGameStarted(false)}>{t('changeSetup')}</button>
           </div>
         </div>
       ) : (

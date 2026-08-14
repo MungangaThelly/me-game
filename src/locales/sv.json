@@ -136,5 +136,16 @@
   "changeSetup": "Ändra inställningar",
   "ready": "Klara…",
   "set": "Färdiga…",
-  "remember": "Kom ihåg!"
+  "remember": "Kom ihåg!",
+  "roundComplete": "Omgång klar",
+  "memoryMastered": "Minnet bemästrat",
+  "newPersonalBest": "Nytt personbästa!",
+  "performanceGrade": "Prestationsbetyg",
+  "grade": "Betyg",
+  "points": "Poäng",
+  "accuracy": "Träffsäkerhet",
+  "sameSetup": "Spela igen",
+  "playHarder": "Spela svårare",
+  "shareResult": "Dela resultat",
+  "shareResultText": "Jag fick {{score}} poäng med betyget {{grade}} på {{time}}s och {{moves}} drag!"
 }

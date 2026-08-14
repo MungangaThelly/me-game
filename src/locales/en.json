@@ -136,5 +136,16 @@
   "changeSetup": "Change setup",
   "ready": "Ready…",
   "set": "Set…",
-  "remember": "Remember!"
+  "remember": "Remember!",
+  "roundComplete": "Round complete",
+  "memoryMastered": "Memory mastered",
+  "newPersonalBest": "New personal best!",
+  "performanceGrade": "Performance grade",
+  "grade": "Grade",
+  "points": "Points",
+  "accuracy": "Accuracy",
+  "sameSetup": "Play again",
+  "playHarder": "Play harder",
+  "shareResult": "Share result",
+  "shareResultText": "I scored {{score}} points with a {{grade}} grade in {{time}}s and {{moves}} moves!"
 }
