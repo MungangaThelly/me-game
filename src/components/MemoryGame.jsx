@@ -59,7 +59,7 @@ const LazyStatsModal = lazy(() => Promise.resolve({
 }));
 
 // Optimized Card component with React.memo to prevent unnecessary re-renders
-const Card = memo(({ card, onCardClick, soundManager }) => {
+const Card = memo(({ card, index, onCardClick, soundManager }) => {
   const handleClick = useCallback(() => {
     if (!card.isFlipped && !card.isMatched) {
       onCardClick(card.id);
@@ -75,6 +75,7 @@ const Card = memo(({ card, onCardClick, soundManager }) => {
       onMouseEnter={() => soundManager.play('buttonHover')}
       aria-label={card.isFlipped || card.isMatched ? card.value : 'Flip card'}
       disabled={card.isMatched}
+      style={{ '--card-index': index }}
     >
       <div className="card-inner">
         <div className="card-front">?</div>
@@ -201,6 +202,8 @@ const MemoryGame = () => {
   const [scoreMultiplier, setScoreMultiplier] = useState(1);
   const [perfectGame, setPerfectGame] = useState(true);
   const [totalMoves, setTotalMoves] = useState(0);
+  const [matchFeedback, setMatchFeedback] = useState(null);
+  const feedbackTimerRef = useRef(null);
   // Removed old gameMode state - now using currentGameMode
   
   // Statistics and achievements
@@ -1038,6 +1041,13 @@ const MemoryGame = () => {
         // Update streak and multiplier
         const newStreak = streak + 1;
         setStreak(newStreak);
+        setMatchFeedback({
+          id: Date.now(),
+          title: newStreak >= 5 ? 'Unstoppable!' : newStreak >= 3 ? 'Combo!' : 'Nice match!',
+          detail: newStreak >= 3 ? `${newStreak} match streak` : 'Keep it going!'
+        });
+        clearTimeout(feedbackTimerRef.current);
+        feedbackTimerRef.current = setTimeout(() => setMatchFeedback(null), 1100);
         
         // Calculate score multiplier based on streak
         const newMultiplier = Math.min(5, 1 + Math.floor(newStreak / 3) * 0.5);
@@ -1123,6 +1133,9 @@ const MemoryGame = () => {
 
   // Memoized expensive calculations
   const allCardsMatched = useMemo(() => areAllCardsMatched(cards), [cards]);
+  const matchedPairs = useMemo(() => cards.filter(card => card.isMatched).length / 2, [cards]);
+  const totalPairs = cards.length / 2;
+  const progress = totalPairs ? Math.round((matchedPairs / totalPairs) * 100) : 0;
 
   // Performance-optimized functions with useCallback
   const changeDifficulty = useCallback((level) => {
@@ -1770,16 +1783,33 @@ const MemoryGame = () => {
             </div>
           </div>
 
-          <div className="card-grid" ref={cardGridRef}>
-            {cards.map(card => (
+          <div className="game-progress" aria-label={`${matchedPairs} of ${totalPairs} pairs matched`}>
+            <div className="progress-copy">
+              <span>Pair progress</span>
+              <strong>{matchedPairs}/{totalPairs}</strong>
+            </div>
+            <div className="progress-track">
+              <div className="progress-fill" style={{ width: `${progress}%` }} />
+            </div>
+          </div>
+
+          <div className={`card-grid ${streak >= 3 ? 'combo-active' : ''}`} ref={cardGridRef}>
+            {cards.map((card, index) => (
               <Card
                 key={card.id}
                 card={card}
+                index={index}
                 onCardClick={handleCardClick}
                 soundManager={soundManager}
               />
             ))}
           </div>
+          {matchFeedback && (
+            <div className="match-feedback" key={matchFeedback.id} role="status" aria-live="polite">
+              <span>{streak >= 3 ? '🔥' : '✨'}</span>
+              <div><strong>{matchFeedback.title}</strong><small>{matchFeedback.detail}</small></div>
+            </div>
+          )}
         </>
       )}
 
