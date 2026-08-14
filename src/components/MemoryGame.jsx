@@ -7,6 +7,7 @@ import customThemeManager from "../utils/customThemes";
 import multiplayerManager from "../utils/multiplayerManager";
 import accessibilityManager from "../utils/accessibilityManager";
 import gameModeManager from "../utils/gameModes";
+import questManager from "../utils/questManager";
 import { areAllCardsMatched, createShuffledCards } from "../utils/gameLogic";
 import { ThemePreviewModal } from "./GamePanels";
 import mobileManager from "../utils/mobileManager";
@@ -207,6 +208,8 @@ const MemoryGame = () => {
   const [previewCountdown, setPreviewCountdown] = useState(0);
   const [previewDuration, setPreviewDuration] = useState(3);
   const [isPersonalBest, setIsPersonalBest] = useState(false);
+  const [questSnapshot, setQuestSnapshot] = useState(() => questManager.getSnapshot());
+  const [questUnlocked, setQuestUnlocked] = useState(null);
   const feedbackTimerRef = useRef(null);
   // Removed old gameMode state - now using currentGameMode
   
@@ -1065,6 +1068,8 @@ const MemoryGame = () => {
         // Update streak and multiplier
         const newStreak = streak + 1;
         setStreak(newStreak);
+        recordQuestEvent('match');
+        if (newStreak >= 3) recordQuestEvent('streak', newStreak);
         setMatchFeedback({
           id: Date.now(),
           title: newStreak >= 5 ? 'Unstoppable!' : newStreak >= 3 ? 'Combo!' : 'Nice match!',
@@ -1182,6 +1187,15 @@ const MemoryGame = () => {
     }
   };
 
+  const recordQuestEvent = (event, amount = 1) => {
+    const next = questManager.record(event, amount);
+    setQuestSnapshot(next);
+    if (next.unlocked.length) {
+      setQuestUnlocked(next.unlocked[0]);
+      setTimeout(() => setQuestUnlocked(null), 2600);
+    }
+  };
+
   // Performance-optimized functions with useCallback
   const changeDifficulty = useCallback((level) => {
     playSound('buttonClick');
@@ -1238,6 +1252,9 @@ const MemoryGame = () => {
         perfectGame: perfectGame,
         pairs: difficulty * 5
       };
+      recordQuestEvent('win');
+      if (perfectGame) recordQuestEvent('perfectWin');
+      if (timer <= 60) recordQuestEvent('fastWin');
       
       // Handle game mode specific completion
       const modeResult = handleGameModeComplete(gameData);
@@ -1568,6 +1585,12 @@ const MemoryGame = () => {
             <div><span>🃏</span><strong>{completedMoves}</strong><small>{t('moves')}</small></div>
             <div><span>🔥</span><strong>{streak}</strong><small>{t('bestStreak')}</small></div>
           </div>
+          <div className="result-quests">
+            <strong>{t('questProgress')}</strong><span>⭐ {questSnapshot.stars}</span>
+            {questSnapshot.quests.filter(quest => quest.completed).map(quest => (
+              <span className="result-quest-badge" key={quest.key}>✓ {t(quest.titleKey)}</span>
+            ))}
+          </div>
           <div className="game-over-actions">
             <button className="replay-primary" onClick={() => resetGame()}>{t('sameSetup')}</button>
             {difficulty < 3 && <button onClick={() => { const next = difficulty + 1; setDifficulty(next); resetGame(next); }}>{t('playHarder')}</button>}
@@ -1873,6 +1896,19 @@ const MemoryGame = () => {
             </div>
           </div>
 
+          <aside className="quest-strip" aria-label={t('activeQuests')}>
+            <div className="quest-strip-heading"><strong>⭐ {questSnapshot.stars}</strong><span>{t('activeQuests')}</span></div>
+            <div className="quest-list">
+              {questSnapshot.quests.map(quest => (
+                <div className={`quest-item ${quest.completed ? 'completed' : ''}`} key={quest.key}>
+                  <span>{quest.completed ? '✓' : quest.cadence === 'daily' ? '☀️' : '📅'}</span>
+                  <div><strong>{t(quest.titleKey)}</strong><small>{quest.progress}/{quest.target} · +{quest.reward} ⭐</small></div>
+                  <i style={{ '--quest-progress': `${quest.progress / quest.target * 100}%` }} />
+                </div>
+              ))}
+            </div>
+          </aside>
+
           <div className={`card-grid ${streak >= 3 ? 'combo-active' : ''}`} ref={cardGridRef}>
             {previewActive && (
               <div className="preview-countdown" role="status" aria-live="assertive">
@@ -1901,6 +1937,11 @@ const MemoryGame = () => {
             <div className="match-feedback" key={matchFeedback.id} role="status" aria-live="polite">
               <span>{streak >= 3 ? '🔥' : '✨'}</span>
               <div><strong>{matchFeedback.title}</strong><small>{matchFeedback.detail}</small></div>
+            </div>
+          )}
+          {questUnlocked && (
+            <div className="quest-unlock" role="status">
+              <span>🏅</span><div><strong>{t('questComplete')}</strong><small>{t(questUnlocked.titleKey)} · +{questUnlocked.reward} ⭐</small></div>
             </div>
           )}
           </>

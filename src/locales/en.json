@@ -147,5 +147,14 @@
   "sameSetup": "Play again",
   "playHarder": "Play harder",
   "shareResult": "Share result",
-  "shareResultText": "I scored {{score}} points with a {{grade}} grade in {{time}}s and {{moves}} moves!"
+  "shareResultText": "I scored {{score}} points with a {{grade}} grade in {{time}}s and {{moves}} moves!",
+  "activeQuests": "Active quests",
+  "questComplete": "Quest complete!",
+  "questProgress": "Quest rewards",
+  "questMatches": "Find 8 pairs",
+  "questStreak": "Reach a 3-match streak",
+  "questSpeed": "Win in under 60 seconds",
+  "questPerfect": "Win without a mistake",
+  "questWins": "Win 5 rounds this week",
+  "questWeeklyMatches": "Find 30 pairs this week"
 }
