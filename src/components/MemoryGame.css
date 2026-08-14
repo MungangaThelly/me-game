@@ -37,6 +37,7 @@ html {
   border-radius: 24px;
   background: linear-gradient(145deg, rgba(255,255,255,.72), rgba(238,242,255,.48));
   box-shadow: inset 0 1px 0 rgba(255,255,255,.9), 0 18px 50px rgba(57, 48, 113, .12);
+  position: relative;
 }
 
 .card {
@@ -114,8 +115,13 @@ html {
 .match-feedback small { color: #dcd5ff; font-size: .76rem; }
 @keyframes feedbackPop { 0% { opacity: 0; transform: translate(-50%, 18px) scale(.7); } 18%,72% { opacity: 1; transform: translate(-50%, 0) scale(1); } 100% { opacity: 0; transform: translate(-50%, -18px) scale(.9); } }
 
+.preview-countdown { position: absolute; inset: 0; z-index: 30; display: grid; place-content: center; pointer-events: none; border-radius: inherit; background: radial-gradient(circle, rgba(35,27,75,.16), transparent 62%); }
+.preview-countdown strong { padding: 10px 22px; border-radius: 999px; background: rgba(35,27,75,.94); color: #fff; font-size: clamp(1.2rem, 4vw, 2rem); box-shadow: 0 12px 36px rgba(35,27,75,.3); }
+.preview-countdown span { color: #fff !important; font-size: clamp(2.8rem, 10vw, 5rem); font-weight: 900; line-height: 1; text-shadow: 0 5px 20px rgba(35,27,75,.7); animation: countdownBeat 1s ease-in-out infinite; }
+@keyframes countdownBeat { 50% { transform: scale(1.16); } }
+
 @media (prefers-reduced-motion: reduce) {
-  .card, .combo-active, .match-feedback { animation: none; }
+  .card, .combo-active, .match-feedback, .preview-countdown span { animation: none; }
   .progress-fill, .card { transition-duration: .01ms; }
 }
 

@@ -59,7 +59,7 @@ const LazyStatsModal = lazy(() => Promise.resolve({
 }));
 
 // Optimized Card component with React.memo to prevent unnecessary re-renders
-const Card = memo(({ card, index, onCardClick, soundManager }) => {
+const Card = memo(({ card, index, isPreviewing, onCardClick, soundManager }) => {
   const handleClick = useCallback(() => {
     if (!card.isFlipped && !card.isMatched) {
       onCardClick(card.id);
@@ -70,11 +70,11 @@ const Card = memo(({ card, index, onCardClick, soundManager }) => {
     <button
       type="button"
       data-card-id={card.id}
-      className={`card ${card.isFlipped ? "flipped" : ""} ${card.isMatched ? "matched" : ""}`}
+      className={`card ${card.isFlipped || isPreviewing ? "flipped" : ""} ${card.isMatched ? "matched" : ""}`}
       onClick={handleClick}
       onMouseEnter={() => soundManager.play('buttonHover')}
-      aria-label={card.isFlipped || card.isMatched ? card.value : 'Flip card'}
-      disabled={card.isMatched}
+      aria-label={card.isFlipped || card.isMatched || isPreviewing ? card.value : 'Flip card'}
+      disabled={card.isMatched || isPreviewing}
       style={{ '--card-index': index }}
     >
       <div className="card-inner">
@@ -203,6 +203,9 @@ const MemoryGame = () => {
   const [perfectGame, setPerfectGame] = useState(true);
   const [totalMoves, setTotalMoves] = useState(0);
   const [matchFeedback, setMatchFeedback] = useState(null);
+  const [previewActive, setPreviewActive] = useState(false);
+  const [previewCountdown, setPreviewCountdown] = useState(0);
+  const [previewDuration, setPreviewDuration] = useState(3);
   const feedbackTimerRef = useRef(null);
   // Removed old gameMode state - now using currentGameMode
   
@@ -342,7 +345,7 @@ const MemoryGame = () => {
 
   useEffect(() => {
     let interval;
-    if (gameStarted && !gameOver && !allCardsMatched) {
+    if (gameStarted && !gameOver && !allCardsMatched && !previewActive) {
       interval = setInterval(() => {
         setTimer(prev => prev + 1);
       }, 1000);
@@ -350,7 +353,22 @@ const MemoryGame = () => {
     return () => clearInterval(interval);
   // cards drives allCardsMatched, so tracking cards also updates the timer state.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [gameStarted, gameOver, cards]);
+  }, [gameStarted, gameOver, cards, previewActive]);
+
+  useEffect(() => {
+    if (!previewActive) return undefined;
+
+    const timeout = setTimeout(() => {
+      if (previewCountdown <= 1) {
+        setPreviewActive(false);
+        setPreviewCountdown(0);
+      } else {
+        setPreviewCountdown(value => value - 1);
+      }
+    }, 1000);
+
+    return () => clearTimeout(timeout);
+  }, [previewActive, previewCountdown]);
 
   useEffect(() => {
     if (gameStarted && !gameOver && timeLimit > 0 && timer >= timeLimit) {
@@ -642,6 +660,7 @@ const MemoryGame = () => {
   }, [currentMultiplayerRoom, isSpectating]);
 
   const resetGame = (nextDifficulty = difficulty, nextMode = currentGameMode) => {
+    const roundPreviewDuration = { 1: 4, 2: 3, 3: 2 }[nextDifficulty] || 3;
     setCards(shuffleCards(nextDifficulty, theme));
     setFlippedCards([]);
     setPlayers(players.map(p => ({ ...p, score: 0 })));
@@ -649,6 +668,9 @@ const MemoryGame = () => {
     setGameOver(false);
     setTimedOut(false);
     setGameStarted(true);
+    setPreviewDuration(roundPreviewDuration);
+    setPreviewCountdown(roundPreviewDuration);
+    setPreviewActive(true);
     
     // Reset progressive difficulty stats
     setStreak(0);
@@ -996,7 +1018,7 @@ const MemoryGame = () => {
   }, [currentGameMode, difficulty]);
 
   const handleCardClick = useCallback((id) => {
-    if (flippedCards.length === 2 || !gameStarted || gameOver) return;
+    if (flippedCards.length === 2 || !gameStarted || gameOver || previewActive) return;
     
     // Check time limit
     if (timeLimit > 0 && timer >= timeLimit) {
@@ -1025,7 +1047,7 @@ const MemoryGame = () => {
     }
   // checkForMatch is declared below and uses the same render snapshot as this click.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [flippedCards, gameStarted, gameOver, timeLimit, timer, cards]);
+  }, [flippedCards, gameStarted, gameOver, previewActive, timeLimit, timer, cards]);
 
   const checkForMatch = (updatedCards, firstId, secondId) => {
     const firstCard = updatedCards.find(card => card.id === firstId);
@@ -1816,11 +1838,24 @@ const MemoryGame = () => {
           </div>
 
           <div className={`card-grid ${streak >= 3 ? 'combo-active' : ''}`} ref={cardGridRef}>
+            {previewActive && (
+              <div className="preview-countdown" role="status" aria-live="assertive">
+                <strong>
+                  {previewCountdown === previewDuration
+                    ? t('ready')
+                    : previewCountdown === previewDuration - 1
+                      ? t('set')
+                      : t('remember')}
+                </strong>
+                <span>{previewCountdown}</span>
+              </div>
+            )}
             {cards.map((card, index) => (
               <Card
                 key={card.id}
                 card={card}
                 index={index}
+                isPreviewing={previewActive}
                 onCardClick={handleCardClick}
                 soundManager={soundManager}
               />

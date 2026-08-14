@@ -133,5 +133,8 @@
   "chooseYourGame": "Build your perfect round",
   "setupHint": "Pick a mode, theme, and difficulty. You can change everything between rounds.",
   "startGame": "Start game",
-  "changeSetup": "Change setup"
+  "changeSetup": "Change setup",
+  "ready": "Ready…",
+  "set": "Set…",
+  "remember": "Remember!"
 }
